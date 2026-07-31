@@ -655,7 +655,7 @@ def get_monthly_count(p1, p2):
                 continue
         except:
             continue
-        if (normalize(ra) == normalize(p1) and normalize(rb) == normalize(p2)) or            (normalize(ra) == normalize(p2) and normalize(rb) == normalize(p1)):
+        if (normalize(ra) == normalize(p1) and normalize(rb) == normalize(p2)) or (normalize(ra) == normalize(p2) and normalize(rb) == normalize(p1)):
             count += 1
     return count
 
@@ -970,7 +970,7 @@ async def on_message(message):
                     continue
 
                 # Pruefen ob beide Spieler in dieser Zeile sind
-                if (normalize(ra) == normalize(p1) and normalize(rb) == normalize(p2)) or                    (normalize(ra) == normalize(p2) and normalize(rb) == normalize(p1)):
+                if (normalize(ra) == normalize(p1) and normalize(rb) == normalize(p2)) or (normalize(ra) == normalize(p2) and normalize(rb) == normalize(p1)):
                     total += 1
                     try:
                         legs_a = int(row[2])
@@ -1129,7 +1129,7 @@ async def on_message(message):
         try:
             rows = sheet.get_all_values()
             count = 0
-            # NUR Spalten A, B, E, F duerfen geaendert werden - NIEMALS G (Formel!)
+            # NUR Spalten A, B, E, F duerfen geaendert werden - NIEMALS G (Gewinner!)
             safe_columns = [0, 1, 4, 5]  # A, B, E, F (0-indexiert)
             col_letters = {0: "A", 1: "B", 4: "E", 5: "F"}
 
@@ -1254,9 +1254,6 @@ async def on_message(message):
             header = all_rows[0]
             sheet.clear()
             sheet.update("A1", [header])
-
-            # Formeln in Spalte G wiederherstellen fuer neue Zeilen
-            # (Formel aus Zeile 1 beibehalten, Rest leer)
 
             await message.channel.send(
                 f"✅ **Saisonreset abgeschlossen!**\n"
@@ -1846,10 +1843,19 @@ Wendet euch an die Admins 🙂"""
     # =========================
     # GOOGLE SHEETS
     # =========================
+    # WICHTIG: Spaltenreihenfolge entspricht dem Sheet-Header:
+    # A=SpielerA, B=SpielerB, C=LegsA, D=LegsB, E/F=Bot(Verlierer/Sieger-Zuordnung), G=Gewinner, H=Datum
     try:
-        new_row_data = [winner, loser, w_score, l_score, p1, p2]
+        if normalize(p1) == normalize(winner):
+            legs_a, legs_b = w_score, l_score
+        elif normalize(p2) == normalize(winner):
+            legs_a, legs_b = l_score, w_score
+        else:  # Unentschieden
+            legs_a, legs_b = s1, s2
+
+        new_row_data = [p1, p2, legs_a, legs_b, p2, p1, winner]
         sheet.append_row(new_row_data)
-        # Datum in Spalte H eintragen (Spalte G = Formel bleibt unangetastet)
+        # Datum in Spalte H eintragen
         last_row = len(sheet.get_all_values())
         sheet.update_cell(last_row, 8, datetime.now().strftime("%d.%m.%Y"))
     except Exception as e:
@@ -1873,8 +1879,7 @@ Wendet euch an die Admins 🙂"""
     try:
         spielabsprachen = await client.fetch_channel(LOG_CHANNEL_ID)
         for player in [p1, p2]:
-            is_winner = winner != "Unentschieden" and normalize(player) == normalize(winner)
-            await check_meilensteine(player, spielabsprachen, check_siege=is_winner)
+            await check_meilensteine(player, spielabsprachen)
     except Exception as e:
         print("❌ MEILENSTEIN FETCH ERROR:", e)
 
@@ -2061,15 +2066,4 @@ Schreibt einfach so:
 # =========================
 # RUN
 # =========================
-async def main():
-    async with client:
-        await client.start(TOKEN)
-
-import asyncio
-
-@client.event
-async def on_ready_extra():
-    await tree.sync()
-    print("✅ Slash Commands synchronisiert!")
-
 client.run(TOKEN)
