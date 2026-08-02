@@ -251,6 +251,19 @@ def get_streak_from_sheet(player_name):
     return streak
 
 
+def get_all_match_rows():
+    """Holt alle Spielzeilen aus dem Ergebnisse-Sheet UND allen Archiv_*-Sheets
+    (z.B. nach einem !saisonreset), damit Auswertungen wie !h2h auch
+    archivierte Saisons mitzählen.
+    """
+    wb = gs_client.open_by_key("19Ax_hj9exjwfM6NPyw9JBL2ad3qW1_LOkMHddJ6stlc")
+    all_rows = []
+    for ws in wb.worksheets():
+        if ws.title == "Ergebnisse" or ws.title.startswith("Archiv_"):
+            all_rows.extend(ws.get_all_values())
+    return all_rows
+
+
 def get_tabelle():
     """Berechnet die komplette Rangliste aus dem Sheet.
     Spalten: A=SpielerA, B=SpielerB, C=LegsA, D=LegsB, G=Gewinner (index 6)
@@ -937,28 +950,40 @@ async def on_message(message):
             await message.channel.send(f"❌ Fehler: `{e}`")
         return
 
+    # =========================
+    # !h2h Spieler1 Spieler2
+    # =========================
     if content.lower().startswith("!h2h"):
-        if not is_stats_channel:
+        if not (is_stats_channel or is_spieler_info):
             return
 
         parts = content.split()
-        if message.mentions and len(message.mentions) >= 2:
+        if len(message.mentions) >= 2:
             p1 = message.mentions[0].display_name
             p2 = message.mentions[1].display_name
+        elif len(message.mentions) == 1:
+            p1 = message.author.display_name
+            p2 = message.mentions[0].display_name
         elif len(parts) >= 3:
             p1 = parts[1]
             p2 = parts[2]
         else:
-            await message.channel.send("❌ Nutzung: `!h2h Spieler1 Spieler2`")
+            await message.channel.send(
+                "❌ Nutzung:\n"
+                "`!h2h @Spieler1 @Spieler2`\n"
+                "oder\n"
+                "`!h2h Spieler1 Spieler2`"
+            )
             return
 
         try:
-            rows = sheet.get_all_values()
+            rows = get_all_match_rows()
             p1_wins = 0
             p2_wins = 0
             p1_legs = 0
             p2_legs = 0
             total = 0
+            last_game = None
 
             for row in rows:
                 if len(row) < 7:
@@ -990,24 +1015,43 @@ async def on_message(message):
                     elif normalize(winner) == normalize(p2):
                         p2_wins += 1
 
+                    last_game = row
+
             if total == 0:
-                await message.channel.send(f"❌ Keine Spiele zwischen {p1} und {p2} gefunden.")
+                await message.channel.send(f"❌ Keine Spiele zwischen **{p1}** und **{p2}** gefunden.")
                 return
 
             p1_wr = round(p1_wins / total * 100, 1) if total > 0 else 0
             p2_wr = round(p2_wins / total * 100, 1) if total > 0 else 0
 
-            leader = p1 if p1_wins > p2_wins else (p2 if p2_wins > p1_wins else None)
-
-            msg = f"⚔️ **Head-to-Head: {p1} vs {p2}**\n\n"
-            msg += f"🎮 Duelle gesamt: {total}\n\n"
-            msg += f"🏆 {p1}: {p1_wins} Siege ({p1_wr}%) | Legs: {p1_legs}\n"
-            msg += f"🏆 {p2}: {p2_wins} Siege ({p2_wr}%) | Legs: {p2_legs}\n\n"
-
-            if leader:
-                msg += f"👑 Fuehrt die Rivalitaet: **{leader}**"
+            if p1_wins > p2_wins:
+                leader = f"👑 {p1}"
+            elif p2_wins > p1_wins:
+                leader = f"👑 {p2}"
             else:
-                msg += f"🤝 Ausgeglichen!"
+                leader = "🤝 Gleichstand"
+
+            msg = (
+                f"⚔️ **Head-to-Head**\n\n"
+                f"🎯 {p1} vs {p2}\n\n"
+                f"🎮 Duelle gesamt (inkl. Archiv): **{total}**\n\n"
+                f"🏆 **{p1}**\n"
+                f"Siege: {p1_wins}\n"
+                f"Winrate: {p1_wr}%\n"
+                f"Legs: {p1_legs}\n\n"
+                f"🏆 **{p2}**\n"
+                f"Siege: {p2_wins}\n"
+                f"Winrate: {p2_wr}%\n"
+                f"Legs: {p2_legs}\n\n"
+                f"{leader}"
+            )
+
+            if last_game:
+                msg += (
+                    "\n\n📌 Letztes Duell:\n"
+                    f"{last_game[0]} vs {last_game[1]} "
+                    f"{last_game[2]}:{last_game[3]}"
+                )
 
             await message.channel.send(msg)
 
@@ -1284,6 +1328,7 @@ async def on_message(message):
 !ziel / /ziel           → Naechster Meilenstein & Rang
 !nächster / /naechster  → Wer hat heute noch Spiele uebrig
 !quote / /quote         → Motivationsspruch
+!h2h @Spieler           → Direktvergleich (inkl. Archiv)
 !hilfe / /hilfe         → Diese Uebersicht
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1293,7 +1338,7 @@ async def on_message(message):
 !stats @Warteliste      → Stats aller Spieler
 !top / !rangliste       → Top 10 Rangliste
 !streak @Spieler        → Aktuelle Siegesserie
-!h2h Spieler1 Spieler2  → Direktvergleich
+!h2h Spieler1 Spieler2  → Direktvergleich (inkl. Archiv)
 !tabelle                → Tabelle als Bild
 !rivalitaeten           → Deine Top 5 Gegner
 !rivalitaeten @Spieler  → Top 5 Gegner eines Spielers
@@ -1364,6 +1409,10 @@ Schreibt einfach so:
 !quote
 → Zufälliger Motivationsspruch wenn du einen
    aufmunternden Push brauchst 💪
+
+!h2h @Spieler
+→ Direktvergleich zwischen dir und @Spieler,
+   zählt auch archivierte Saisons mit! ⚔️
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🏅 MEILENSTEINE
