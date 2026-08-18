@@ -986,6 +986,49 @@ async def on_message(message):
             print("❌ STATS ERROR:", e)
             await message.channel.send("❌ Fehler beim Laden der Stats.")
         return
+        
+        @client.command()
+@commands.has_permissions(administrator=True)
+async def test_monatsreset(ctx):
+    jetzt = datetime.now(VIENNA_TZ)
+
+    if jetzt.month == 12:
+        naechster_monat = jetzt.replace(
+            year=jetzt.year + 1,
+            month=1,
+            day=1,
+            hour=0,
+            minute=0,
+            second=0,
+            microsecond=0
+        )
+    else:
+        naechster_monat = jetzt.replace(
+            month=jetzt.month + 1,
+            day=1,
+            hour=0,
+            minute=0,
+            second=0,
+            microsecond=0
+        )
+
+    wartezeit = (naechster_monat - jetzt).total_seconds()
+
+    stunden = int(wartezeit // 3600)
+    minuten = int((wartezeit % 3600) // 60)
+    sekunden = int(wartezeit % 60)
+
+    await ctx.send(
+        f"🧪 **Monatsreset-Test**\n\n"
+        f"🇦🇹 Aktuelle Zeit: "
+        f"`{jetzt.strftime('%d.%m.%Y %H:%M:%S')}`\n\n"
+        f"⏰ Nächster Reset: "
+        f"`{naechster_monat.strftime('%d.%m.%Y %H:%M:%S')}`\n\n"
+        f"⏳ Noch: **{stunden} Stunden, "
+        f"{minuten} Minuten, {sekunden} Sekunden**\n\n"
+        f"✅ Zeitzone: `Europe/Vienna`\n"
+        f"🛡️ Es wurden **keine Daten verändert**."
+    )
 
     # =========================
     # !top — Rangliste Top 10
