@@ -872,20 +872,38 @@ _tasks_started = False
 async def on_ready():
     global _tasks_started
 
-    print(f"✅ Online als {client.user}")
+    print("🔥 ON_READY START", flush=True)
+    print(f"✅ Online als {client.user}", flush=True)
 
     GUILD_ID = 1463104622779695159
     guild = discord.Object(id=GUILD_ID)
 
-    await tree.sync(guild=guild)
+    print("⏳ Starte Slash-Command-Synchronisierung...", flush=True)
 
-    print(f"✅ Slash Commands für Server {GUILD_ID} synchronisiert!")
+    try:
+        await tree.sync(guild=guild)
+        print(
+            f"✅ Slash Commands für Server {GUILD_ID} synchronisiert!",
+            flush=True
+        )
+    except Exception as e:
+        print(f"❌ Slash-Sync Fehler: {repr(e)}", flush=True)
 
     if _tasks_started:
-        print("⚠️ on_ready erneut ausgelöst (Reconnect) - Tasks werden NICHT erneut gestartet.")
+        print("⚠️ Tasks laufen bereits.", flush=True)
         return
 
     _tasks_started = True
+
+    print("🚀 Starte Hintergrund-Tasks...", flush=True)
+
+    client.loop.create_task(midnight_auswertung())
+    client.loop.create_task(tabelle_scheduler())
+    client.loop.create_task(geburtstag_checker())
+    client.loop.create_task(warteliste_scheduler())
+    asyncio.create_task(monatlicher_reset_scheduler())
+
+    print("✅ Hintergrund-Tasks gestartet!", flush=True)
 
     # Counter aus heutigen Spielen wiederherstellen
     try:
@@ -906,11 +924,7 @@ async def on_ready():
     except Exception as e:
         print(f"❌ Counter-Restore Fehler: {e}")
 
-    client.loop.create_task(midnight_auswertung())
-    client.loop.create_task(tabelle_scheduler())
-    client.loop.create_task(geburtstag_checker())
-    client.loop.create_task(warteliste_scheduler())
-    asyncio.create_task(monatlicher_reset_scheduler())
+    
 
 
 # =========================
