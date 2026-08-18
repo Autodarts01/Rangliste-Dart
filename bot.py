@@ -903,7 +903,7 @@ async def on_ready():
     client.loop.create_task(tabelle_scheduler())
     client.loop.create_task(geburtstag_checker())
     client.loop.create_task(warteliste_scheduler())
-    client.loop.create_task(monatlicher_reset_scheduler())
+    asyncio.create_task(monatlicher_reset_scheduler())
 
 
 # =========================
