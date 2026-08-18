@@ -6,7 +6,8 @@ import json
 import random
 import io
 from collections import defaultdict
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timezone, timedelta
+from zoneinfo import ZoneInfo
 import asyncio
 from PIL import Image, ImageDraw, ImageFont
 
@@ -465,6 +466,151 @@ async def tabelle_scheduler():
         wait_seconds = (next_post - now).total_seconds()
         await asyncio.sleep(wait_seconds)
         await post_tabelle()
+        
+        # =========================
+# AUTOMATISCHER MONATSRESET
+# =========================
+
+VIENNA_TZ = ZoneInfo("Europe/Vienna")
+
+# Verhindert einen doppelten Reset, falls der Bot neu gestartet/reconnected wird.
+MONTHLY_RESET_MARKER = "last_monthly_reset.txt"
+
+
+def monatlicher_reset():
+    """
+    Archiviert das aktuelle Ergebnisse-Sheet und startet
+    am 1. des Monats eine neue Rangliste.
+    """
+    try:
+        jetzt = datetime.now(VIENNA_TZ)
+
+        # Sicherheitsprüfung: Nur am 1. des Monats
+        if jetzt.day != 1:
+            return False
+
+        monat_key = jetzt.strftime("%Y-%m")
+
+        # Wurde dieser Monat bereits zurückgesetzt?
+        if os.path.exists(MONTHLY_RESET_MARKER):
+            with open(MONTHLY_RESET_MARKER, "r", encoding="utf-8") as f:
+                letzter_reset = f.read().strip()
+
+            if letzter_reset == monat_key:
+                print(f"ℹ️ Monatsreset {monat_key} wurde bereits durchgeführt.")
+                return False
+
+        # Aktuelle Ranglisten-Daten lesen
+        all_rows = sheet.get_all_values()
+
+        # Nur Header vorhanden
+        if len(all_rows) <= 1:
+            print("ℹ️ Monatsreset: Keine Spiele zum Archivieren vorhanden.")
+
+            with open(MONTHLY_RESET_MARKER, "w", encoding="utf-8") as f:
+                f.write(monat_key)
+
+            return False
+
+        # Google Spreadsheet öffnen
+        wb = gs_client.open_by_key(
+            "19Ax_hj9exjwfM6NPyw9JBL2ad3qW1_LOkMHddJ6stlc"
+        )
+
+        # Archivname
+        archiv_name = f"Archiv_{jetzt.strftime('%Y-%m')}"
+
+        # Archiv erstellen
+        try:
+            archiv_sheet = wb.worksheet(archiv_name)
+        except:
+            archiv_sheet = wb.add_worksheet(
+                title=archiv_name,
+                rows=1000,
+                cols=20
+            )
+
+        # Alte Monatsdaten archivieren
+        archiv_sheet.clear()
+        archiv_sheet.update("A1", all_rows)
+
+        # Header behalten
+        header = all_rows[0]
+
+        # Aktuelle Rangliste leeren
+        sheet.clear()
+        sheet.update("A1", [header])
+
+        # Reset markieren
+        with open(MONTHLY_RESET_MARKER, "w", encoding="utf-8") as f:
+            f.write(monat_key)
+
+        print(
+            f"🔄 MONATSRESET ERFOLGREICH | "
+            f"{jetzt.strftime('%d.%m.%Y %H:%M:%S')} Europe/Vienna | "
+            f"Archiv: {archiv_name} | "
+            f"Spiele: {len(all_rows) - 1}"
+        )
+
+        return True
+
+    except Exception as e:
+        print(f"❌ MONATSRESET ERROR: {e}")
+        return False
+
+
+async def monatlicher_reset_scheduler():
+    """
+    Führt den Monatsreset exakt am 1. des Monats um 00:00 Uhr
+    in der Zeitzone Europe/Vienna durch.
+    """
+    await client.wait_until_ready()
+
+    print("⏰ Monatsreset-Scheduler gestartet.")
+
+    while not client.is_closed():
+
+        jetzt = datetime.now(VIENNA_TZ)
+
+        # Nächsten Monat berechnen
+        if jetzt.month == 12:
+            naechster_monat = jetzt.replace(
+                year=jetzt.year + 1,
+                month=1,
+                day=1,
+                hour=0,
+                minute=0,
+                second=0,
+                microsecond=0
+            )
+        else:
+            naechster_monat = jetzt.replace(
+                month=jetzt.month + 1,
+                day=1,
+                hour=0,
+                minute=0,
+                second=0,
+                microsecond=0
+            )
+
+        wartezeit = (
+            naechster_monat - jetzt
+        ).total_seconds()
+
+        print(
+            f"⏰ Nächster Monatsreset: "
+            f"{naechster_monat.strftime('%d.%m.%Y %H:%M:%S')} "
+            f"Europe/Vienna"
+        )
+
+        # Bis exakt zum Monatswechsel warten
+        await asyncio.sleep(max(wartezeit, 1))
+
+        # Reset durchführen
+        monatlicher_reset()
+
+        # Kleine Sicherheitspause
+        await asyncio.sleep(60)
 
 
 async def geburtstag_checker():
@@ -757,6 +903,7 @@ async def on_ready():
     client.loop.create_task(tabelle_scheduler())
     client.loop.create_task(geburtstag_checker())
     client.loop.create_task(warteliste_scheduler())
+    client.loop.create_task(monatlicher_reset_scheduler())
 
 
 # =========================
