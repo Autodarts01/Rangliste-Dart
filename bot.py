@@ -2324,4 +2324,5 @@ Schreibt einfach so:
 # =========================
 # RUN
 # =========================
+print("🚀 MANFRED: bot.py wurde vollständig geladen!")
 client.run(TOKEN)
