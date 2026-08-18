@@ -987,9 +987,19 @@ async def on_message(message):
             await message.channel.send("❌ Fehler beim Laden der Stats.")
         return
         
-        @client.command()
-@commands.has_permissions(administrator=True)
-async def test_monatsreset(ctx):
+@tree.command(
+    name="test_monatsreset",
+    description="Prüft den monatlichen Reset"
+)
+async def test_monatsreset(interaction: discord.Interaction):
+
+    if not any(role.id in ADMIN_ROLE_IDS for role in interaction.user.roles):
+        await interaction.response.send_message(
+            "❌ Keine Berechtigung.",
+            ephemeral=True
+        )
+        return
+
     jetzt = datetime.now(VIENNA_TZ)
 
     if jetzt.month == 12:
@@ -1018,7 +1028,7 @@ async def test_monatsreset(ctx):
     minuten = int((wartezeit % 3600) // 60)
     sekunden = int(wartezeit % 60)
 
-    await ctx.send(
+    await interaction.response.send_message(
         f"🧪 **Monatsreset-Test**\n\n"
         f"🇦🇹 Aktuelle Zeit: "
         f"`{jetzt.strftime('%d.%m.%Y %H:%M:%S')}`\n\n"
@@ -1026,8 +1036,9 @@ async def test_monatsreset(ctx):
         f"`{naechster_monat.strftime('%d.%m.%Y %H:%M:%S')}`\n\n"
         f"⏳ Noch: **{stunden} Stunden, "
         f"{minuten} Minuten, {sekunden} Sekunden**\n\n"
-        f"✅ Zeitzone: `Europe/Vienna`\n"
-        f"🛡️ Es wurden **keine Daten verändert**."
+        f"🌍 Zeitzone: `Europe/Vienna`\n"
+        f"✅ **Keine Daten wurden verändert.**",
+        ephemeral=True
     )
 
     # =========================
