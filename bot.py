@@ -2338,8 +2338,7 @@ Schreibt einfach so:
 # =========================
 # RUN
 # =========================
-print("🚀 BOT.PY ERREICHT CLIENT.RUN", flush=True)
-print(f"CLIENT: {client}", flush=True)
+print("🚀 TEST AKTUELLER CODE", flush=True)
 print(f"TOKEN VORHANDEN: {bool(TOKEN)}", flush=True)
 
 client.run(TOKEN)
