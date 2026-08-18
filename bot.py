@@ -2338,5 +2338,8 @@ Schreibt einfach so:
 # =========================
 # RUN
 # =========================
-print("🚀 MANFRED: bot.py wurde vollständig geladen!")
+print("🚀 BOT.PY ERREICHT CLIENT.RUN", flush=True)
+print(f"CLIENT: {client}", flush=True)
+print(f"TOKEN VORHANDEN: {bool(TOKEN)}", flush=True)
+
 client.run(TOKEN)
