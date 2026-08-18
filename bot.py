@@ -2338,7 +2338,7 @@ Schreibt einfach so:
 # =========================
 # RUN
 # =========================
-print("🚀 TEST AKTUELLER CODE", flush=True)
+print("🚀 NEUE VERSION 2026-08-18", flush=True)
 print(f"TOKEN VORHANDEN: {bool(TOKEN)}", flush=True)
 
 client.run(TOKEN)
