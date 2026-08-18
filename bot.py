@@ -987,59 +987,7 @@ async def on_message(message):
             await message.channel.send("❌ Fehler beim Laden der Stats.")
         return
         
-@tree.command(
-    name="test_monatsreset",
-    description="Prüft den monatlichen Reset"
-)
-async def test_monatsreset(interaction: discord.Interaction):
 
-    if not any(role.id in ADMIN_ROLE_IDS for role in interaction.user.roles):
-        await interaction.response.send_message(
-            "❌ Keine Berechtigung.",
-            ephemeral=True
-        )
-        return
-
-    jetzt = datetime.now(VIENNA_TZ)
-
-    if jetzt.month == 12:
-        naechster_monat = jetzt.replace(
-            year=jetzt.year + 1,
-            month=1,
-            day=1,
-            hour=0,
-            minute=0,
-            second=0,
-            microsecond=0
-        )
-    else:
-        naechster_monat = jetzt.replace(
-            month=jetzt.month + 1,
-            day=1,
-            hour=0,
-            minute=0,
-            second=0,
-            microsecond=0
-        )
-
-    wartezeit = (naechster_monat - jetzt).total_seconds()
-
-    stunden = int(wartezeit // 3600)
-    minuten = int((wartezeit % 3600) // 60)
-    sekunden = int(wartezeit % 60)
-
-    await interaction.response.send_message(
-        f"🧪 **Monatsreset-Test**\n\n"
-        f"🇦🇹 Aktuelle Zeit: "
-        f"`{jetzt.strftime('%d.%m.%Y %H:%M:%S')}`\n\n"
-        f"⏰ Nächster Reset: "
-        f"`{naechster_monat.strftime('%d.%m.%Y %H:%M:%S')}`\n\n"
-        f"⏳ Noch: **{stunden} Stunden, "
-        f"{minuten} Minuten, {sekunden} Sekunden**\n\n"
-        f"🌍 Zeitzone: `Europe/Vienna`\n"
-        f"✅ **Keine Daten wurden verändert.**",
-        ephemeral=True
-    )
 
     # =========================
     # !top — Rangliste Top 10
@@ -2193,6 +2141,59 @@ async def slash_ich(interaction: discord.Interaction):
     except Exception as e:
         await interaction.response.send_message(f"Fehler: {e}", ephemeral=True)
 
+@tree.command(
+    name="test_monatsreset",
+    description="Prüft den monatlichen Reset"
+)
+async def test_monatsreset(interaction: discord.Interaction):
+
+    if not any(role.id in ADMIN_ROLE_IDS for role in interaction.user.roles):
+        await interaction.response.send_message(
+            "❌ Keine Berechtigung.",
+            ephemeral=True
+        )
+        return
+
+    jetzt = datetime.now(VIENNA_TZ)
+
+    if jetzt.month == 12:
+        naechster_monat = jetzt.replace(
+            year=jetzt.year + 1,
+            month=1,
+            day=1,
+            hour=0,
+            minute=0,
+            second=0,
+            microsecond=0
+        )
+    else:
+        naechster_monat = jetzt.replace(
+            month=jetzt.month + 1,
+            day=1,
+            hour=0,
+            minute=0,
+            second=0,
+            microsecond=0
+        )
+
+    wartezeit = (naechster_monat - jetzt).total_seconds()
+
+    stunden = int(wartezeit // 3600)
+    minuten = int((wartezeit % 3600) // 60)
+    sekunden = int(wartezeit % 60)
+
+    await interaction.response.send_message(
+        f"🧪 **Monatsreset-Test**\n\n"
+        f"🇦🇹 Aktuelle Zeit: "
+        f"`{jetzt.strftime('%d.%m.%Y %H:%M:%S')}`\n\n"
+        f"⏰ Nächster Reset: "
+        f"`{naechster_monat.strftime('%d.%m.%Y %H:%M:%S')}`\n\n"
+        f"⏳ Noch: **{stunden} Stunden, "
+        f"{minuten} Minuten, {sekunden} Sekunden**\n\n"
+        f"🌍 Zeitzone: `Europe/Vienna`\n"
+        f"✅ **Keine Daten wurden verändert.**",
+        ephemeral=True
+    )
 
 @tree.command(name="ziel", description="Zeigt deinen naechsten Meilenstein und Rang")
 async def slash_ziel(interaction: discord.Interaction):
