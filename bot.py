@@ -871,13 +871,20 @@ _tasks_started = False
 @client.event
 async def on_ready():
     global _tasks_started
+
     print(f"✅ Online als {client.user}")
-    await tree.sync()
-    print("✅ Slash Commands synchronisiert!")
+
+    GUILD_ID = 1463104622779695159
+    guild = discord.Object(id=GUILD_ID)
+
+    await tree.sync(guild=guild)
+
+    print(f"✅ Slash Commands für Server {GUILD_ID} synchronisiert!")
 
     if _tasks_started:
-        print("⚠️ on_ready erneut ausgeloest (Reconnect) - Tasks werden NICHT erneut gestartet.")
+        print("⚠️ on_ready erneut ausgelöst (Reconnect) - Tasks werden NICHT erneut gestartet.")
         return
+
     _tasks_started = True
 
     # Counter aus heutigen Spielen wiederherstellen
