@@ -1252,7 +1252,7 @@ async def on_ready():
 
     print("⏳ Starte Slash-Command-Synchronisierung...", flush=True)
 
-    try:
+try:
     await tree.sync(guild=guild)
 
     print(
