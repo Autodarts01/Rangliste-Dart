@@ -467,7 +467,7 @@ async def tabelle_scheduler():
         await asyncio.sleep(wait_seconds)
         await post_tabelle()
         
-        # =========================
+# =========================
 # AUTOMATISCHER MONATSRESET
 # =========================
 
@@ -497,7 +497,7 @@ async def monatlicher_reset(force=False):
     try:
         jetzt = datetime.now(VIENNA_TZ)
 
-        # ==========================================
+                # ==========================================
         # SICHERHEITSPRÜFUNG
         # ==========================================
 
@@ -508,6 +508,37 @@ async def monatlicher_reset(force=False):
                 flush=True
             )
             return False
+
+        # ==========================================
+        # VORMONAT BERECHNEN
+        # ==========================================
+
+        if jetzt.month == 1:
+            vormonat = 12
+            vormonat_jahr = jetzt.year - 1
+        else:
+            vormonat = jetzt.month - 1
+            vormonat_jahr = jetzt.year
+
+        monate = [
+            "Januar",
+            "Februar",
+            "März",
+            "April",
+            "Mai",
+            "Juni",
+            "Juli",
+            "August",
+            "September",
+            "Oktober",
+            "November",
+            "Dezember"
+        ]
+
+        monat_name = (
+            f"{monate[vormonat - 1]} "
+            f"{vormonat_jahr}"
+        )
 
         monat_key = jetzt.strftime("%Y-%m")
 
@@ -613,7 +644,7 @@ async def monatlicher_reset(force=False):
                 )
             )
 
-        # ==========================================
+                # ==========================================
         # 🥇 RANKING SORTIEREN
         # ==========================================
 
@@ -648,7 +679,6 @@ async def monatlicher_reset(force=False):
                         f"━━━━━━━━━━━━━━━━━━━━\n\n"
                     )
 
-                    # TOP 3
                     for i, daten in enumerate(ranking[:3]):
 
                         (
@@ -669,7 +699,6 @@ async def monatlicher_reset(force=False):
                             f"📈 {round(winrate * 100, 1)} %\n\n"
                         )
 
-                    # Monatssieger
                     sieger = ranking[0]
 
                     msg += (
@@ -765,7 +794,7 @@ async def monatlicher_reset(force=False):
             flush=True
         )
 
-        # ==========================================
+                # ==========================================
         # 🧪 TESTMODUS
         # ==========================================
 
@@ -777,8 +806,7 @@ async def monatlicher_reset(force=False):
             )
 
             print(
-                "🛡️ Aktuelle Rangliste "
-                "wurde NICHT gelöscht.",
+                "🛡️ Aktuelle Rangliste wurde NICHT gelöscht.",
                 flush=True
             )
 
@@ -795,6 +823,11 @@ async def monatlicher_reset(force=False):
         sheet.update(
             "A1",
             [header]
+        )
+
+        print(
+            "🧹 Aktuelle Rangliste wurde geleert.",
+            flush=True
         )
 
         # ==========================================
@@ -854,15 +887,10 @@ async def monatlicher_reset_scheduler():
             flush=True
         )
 
-        # ======================================
-        # NUR AM 1. DES MONATS
-        # ======================================
-
         if jetzt.day == 1:
 
             print(
-                "🔍 Heute ist der 1. - "
-                "prüfe Monatsreset...",
+                "🔍 Heute ist der 1. - prüfe Monatsreset...",
                 flush=True
             )
 
@@ -883,12 +911,10 @@ async def monatlicher_reset_scheduler():
                     flush=True
                 )
 
-            # Schutz gegen mehrfaches Ausführen
             await asyncio.sleep(70)
 
         else:
 
-            # Alle 60 Sekunden prüfen
             await asyncio.sleep(60)
 
 
