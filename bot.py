@@ -711,7 +711,7 @@ async def monatlicher_reset(force=False):
 
                     await channel.send(msg)
 
-                    print(
+                                        print(
                         f"🏆 Monatssieger gepostet: "
                         f"{sieger[0]}",
                         flush=True
@@ -720,8 +720,7 @@ async def monatlicher_reset(force=False):
                 else:
 
                     print(
-                        f"❌ Kanal #{CHANNEL_NAME} "
-                        f"nicht gefunden.",
+                        "❌ Kanal #bullseye-rangliste nicht gefunden.",
                         flush=True
                     )
 
@@ -898,13 +897,29 @@ async def monatlicher_reset_scheduler():
                 flush=True
             )
 
-            await monatlicher_reset()
+            erfolg = await monatlicher_reset()
+
+            if erfolg:
+
+                print(
+                    "✅ Monatsreset inklusive Monatssieger "
+                    "erfolgreich durchgeführt.",
+                    flush=True
+                )
+
+            else:
+
+                print(
+                    "ℹ️ Monatsreset wurde nicht durchgeführt.",
+                    flush=True
+                )
 
             # Schutz gegen mehrfaches Ausführen
             await asyncio.sleep(70)
 
         else:
 
+            # Alle 60 Sekunden prüfen
             await asyncio.sleep(60)
 
 
