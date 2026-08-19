@@ -477,60 +477,74 @@ VIENNA_TZ = ZoneInfo("Europe/Vienna")
 MONTHLY_RESET_MARKER = "last_monthly_reset.txt"
 
 
-def monatlicher_reset():
+def monatlicher_reset(force=False):
     """
     Archiviert das aktuelle Ergebnisse-Sheet und startet
-    am 1. des Monats eine neue Rangliste.
+    eine neue Rangliste.
+
+    force=True erlaubt einen manuellen Test außerhalb
+    des 1. Monats.
     """
     try:
         jetzt = datetime.now(VIENNA_TZ)
 
-        # Sicherheitsprüfung: Nur am 1. des Monats
-        if jetzt.day != 1:
+        # Sicherheitsprüfung
+        if not force and jetzt.day != 1:
+            print(
+                f"ℹ️ Monatsreset nicht ausgeführt: "
+                f"Heute ist der {jetzt.strftime('%d.%m.%Y')}.",
+                flush=True
+            )
             return False
 
         monat_key = jetzt.strftime("%Y-%m")
 
-        # Wurde dieser Monat bereits zurückgesetzt?
-        if os.path.exists(MONTHLY_RESET_MARKER):
+        # Bei einem Test keinen normalen Monatsmarker verwenden
+        marker_key = monat_key if not force else f"TEST-{jetzt.strftime('%Y%m%d-%H%M%S')}"
+
+        if not force and os.path.exists(MONTHLY_RESET_MARKER):
             with open(MONTHLY_RESET_MARKER, "r", encoding="utf-8") as f:
                 letzter_reset = f.read().strip()
 
             if letzter_reset == monat_key:
-                print(f"ℹ️ Monatsreset {monat_key} wurde bereits durchgeführt.")
+                print(
+                    f"ℹ️ Monatsreset {monat_key} wurde bereits durchgeführt.",
+                    flush=True
+                )
                 return False
 
-        # Aktuelle Ranglisten-Daten lesen
+        # Aktuelle Daten lesen
         all_rows = sheet.get_all_values()
 
-        # Nur Header vorhanden
         if len(all_rows) <= 1:
-            print("ℹ️ Monatsreset: Keine Spiele zum Archivieren vorhanden.")
-
-            with open(MONTHLY_RESET_MARKER, "w", encoding="utf-8") as f:
-                f.write(monat_key)
-
+            print(
+                "ℹ️ Monatsreset: Keine Spiele zum Archivieren vorhanden.",
+                flush=True
+            )
             return False
 
-        # Google Spreadsheet öffnen
+        # Spreadsheet öffnen
         wb = gs_client.open_by_key(
             "19Ax_hj9exjwfM6NPyw9JBL2ad3qW1_LOkMHddJ6stlc"
         )
 
         # Archivname
-        archiv_name = f"Archiv_{jetzt.strftime('%Y-%m')}"
+        if force:
+            archiv_name = f"TEST_Archiv_{jetzt.strftime('%Y-%m-%d_%H-%M-%S')}"
+        else:
+            archiv_name = f"Archiv_{jetzt.strftime('%Y-%m')}"
 
         # Archiv erstellen
         try:
             archiv_sheet = wb.worksheet(archiv_name)
-        except:
+        except Exception:
             archiv_sheet = wb.add_worksheet(
                 title=archiv_name,
                 rows=1000,
                 cols=20
             )
 
-        # Alte Monatsdaten archivieren
+        # Daten archivieren
         archiv_sheet.clear()
         archiv_sheet.update("A1", all_rows)
 
@@ -541,76 +555,64 @@ def monatlicher_reset():
         sheet.clear()
         sheet.update("A1", [header])
 
-        # Reset markieren
-        with open(MONTHLY_RESET_MARKER, "w", encoding="utf-8") as f:
-            f.write(monat_key)
+        # Nur beim echten Monatsreset Marker setzen
+        if not force:
+            with open(MONTHLY_RESET_MARKER, "w", encoding="utf-8") as f:
+                f.write(marker_key)
 
         print(
             f"🔄 MONATSRESET ERFOLGREICH | "
             f"{jetzt.strftime('%d.%m.%Y %H:%M:%S')} Europe/Vienna | "
             f"Archiv: {archiv_name} | "
-            f"Spiele: {len(all_rows) - 1}"
+            f"Spiele: {len(all_rows) - 1}",
+            flush=True
         )
 
         return True
 
     except Exception as e:
-        print(f"❌ MONATSRESET ERROR: {e}")
+        print(
+            f"❌ MONATSRESET ERROR: {repr(e)}",
+            flush=True
+        )
         return False
 
 
 async def monatlicher_reset_scheduler():
     """
-    Führt den Monatsreset exakt am 1. des Monats um 00:00 Uhr
-    in der Zeitzone Europe/Vienna durch.
+    Prüft regelmäßig, ob der Monatsreset fällig ist.
+    Zeitzone: Europe/Vienna
     """
     await client.wait_until_ready()
 
-    print("⏰ Monatsreset-Scheduler gestartet.")
+    print("⏰ Monatsreset-Scheduler gestartet.", flush=True)
 
     while not client.is_closed():
 
         jetzt = datetime.now(VIENNA_TZ)
 
-        # Nächsten Monat berechnen
-        if jetzt.month == 12:
-            naechster_monat = jetzt.replace(
-                year=jetzt.year + 1,
-                month=1,
-                day=1,
-                hour=0,
-                minute=0,
-                second=0,
-                microsecond=0
-            )
-        else:
-            naechster_monat = jetzt.replace(
-                month=jetzt.month + 1,
-                day=1,
-                hour=0,
-                minute=0,
-                second=0,
-                microsecond=0
-            )
-
-        wartezeit = (
-            naechster_monat - jetzt
-        ).total_seconds()
-
         print(
-            f"⏰ Nächster Monatsreset: "
-            f"{naechster_monat.strftime('%d.%m.%Y %H:%M:%S')} "
-            f"Europe/Vienna"
+            f"⏰ Monatsreset-Prüfung: "
+            f"{jetzt.strftime('%d.%m.%Y %H:%M:%S')} Europe/Vienna",
+            flush=True
         )
 
-        # Bis exakt zum Monatswechsel warten
-        await asyncio.sleep(max(wartezeit, 1))
+        # Nur am 1. des Monats
+        if jetzt.day == 1:
 
-        # Reset durchführen
-        monatlicher_reset()
+            print(
+                "🔍 Heute ist der 1. - prüfe Monatsreset...",
+                flush=True
+            )
 
-        # Kleine Sicherheitspause
-        await asyncio.sleep(60)
+            monatlicher_reset()
+
+            # Nicht mehrfach ausführen
+            await asyncio.sleep(70)
+
+        else:
+            # Alle 60 Sekunden prüfen
+            await asyncio.sleep(60)
 
 
 async def geburtstag_checker():
