@@ -1256,24 +1256,32 @@ async def on_ready():
     )
 
     try:
-        await tree.sync(guild=guild)
+    await tree.sync(guild=guild)
 
-        print(
-            f"✅ Slash Commands für Server {GUILD_ID} synchronisiert!",
-            flush=True
-        )
+    print(
+        f"✅ Slash Commands für Server {GUILD_ID} synchronisiert!",
+        flush=True
+    )
 
-        print(
-            "📋 Registrierte Commands:",
-            [cmd.name for cmd in tree.get_commands()],
-            flush=True
-        )
+    print(
+        "📋 Registrierte Commands:",
+        [cmd.name for cmd in tree.get_commands()],
+        flush=True
+    )
 
-    except Exception as e:
-        print(
-            f"❌ Slash-Sync Fehler: {repr(e)}",
-            flush=True
-        )
+    guild_commands = await tree.fetch_commands(guild=guild)
+
+    print(
+        "📋 Discord-Guild-Commands:",
+        [cmd.name for cmd in guild_commands],
+        flush=True
+    )
+
+except Exception as e:
+    print(
+        f"❌ Slash-Sync Fehler: {repr(e)}",
+        flush=True
+    )
 
     if _tasks_started:
         print("⚠️ Tasks laufen bereits.", flush=True)
