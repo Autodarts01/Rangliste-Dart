@@ -1250,36 +1250,38 @@ async def on_ready():
     GUILD_ID = 1463104622779695159
     guild = discord.Object(id=GUILD_ID)
 
-    print("⏳ Starte Slash-Command-Synchronisierung...", flush=True)
-
-try:
-    await tree.sync(guild=guild)
-
     print(
-        f"✅ Slash Commands für Server {GUILD_ID} synchronisiert!",
+        "⏳ Starte Slash-Command-Synchronisierung...",
         flush=True
     )
 
-    print(
-        "📋 Registrierte Commands:",
-        [cmd.name for cmd in tree.get_commands()],
-        flush=True
-    )
+    try:
+        await tree.sync(guild=guild)
 
-except Exception as e:
-    print(
-        f"❌ Slash-Sync Fehler: {repr(e)}",
-        flush=True
-    )
+        print(
+            f"✅ Slash Commands für Server {GUILD_ID} synchronisiert!",
+            flush=True
+        )
+
+        print(
+            "📋 Registrierte Commands:",
+            [cmd.name for cmd in tree.get_commands()],
+            flush=True
+        )
 
     except Exception as e:
-        print(f"❌ Slash-Sync Fehler: {repr(e)}", flush=True)
+        print(
+            f"❌ Slash-Sync Fehler: {repr(e)}",
+            flush=True
+        )
 
     if _tasks_started:
         print("⚠️ Tasks laufen bereits.", flush=True)
         return
 
     _tasks_started = True
+
+    # deine bestehenden Tasks ...
 
     print("🚀 Starte Hintergrund-Tasks...", flush=True)
 
