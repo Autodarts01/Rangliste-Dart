@@ -2166,7 +2166,7 @@ async def slash_ich(interaction: discord.Interaction):
 
 @tree.command(
     name="test_monatsreset",
-    description="Prüft den monatlichen Reset"
+    description="Führt den Monatsreset testweise sofort aus"
 )
 async def test_monatsreset(interaction: discord.Interaction):
 
@@ -2177,46 +2177,42 @@ async def test_monatsreset(interaction: discord.Interaction):
         )
         return
 
-    jetzt = datetime.now(VIENNA_TZ)
+    await interaction.response.defer(ephemeral=True)
 
-    if jetzt.month == 12:
-        naechster_monat = jetzt.replace(
-            year=jetzt.year + 1,
-            month=1,
-            day=1,
-            hour=0,
-            minute=0,
-            second=0,
-            microsecond=0
+    try:
+        print("🧪 TEST: Monatsreset wird gestartet...", flush=True)
+
+        erfolg = monatlicher_reset(force=True)
+
+        if erfolg:
+            print("✅ TEST: Monatsreset erfolgreich.", flush=True)
+
+            await interaction.followup.send(
+                "🧪 **Monatsreset erfolgreich getestet!**\n\n"
+                "✅ Das aktuelle Sheet wurde archiviert.\n"
+                "✅ Die Rangliste wurde geleert.\n"
+                "✅ Der Header wurde behalten.",
+                ephemeral=True
+            )
+        else:
+            print("⚠️ TEST: Monatsreset hat False zurückgegeben.", flush=True)
+
+            await interaction.followup.send(
+                "⚠️ Der Monatsreset wurde nicht ausgeführt.\n"
+                "Bitte die Railway-Logs prüfen.",
+                ephemeral=True
+            )
+
+    except Exception as e:
+        print(
+            f"❌ TEST-MONATSRESET FEHLER: {repr(e)}",
+            flush=True
         )
-    else:
-        naechster_monat = jetzt.replace(
-            month=jetzt.month + 1,
-            day=1,
-            hour=0,
-            minute=0,
-            second=0,
-            microsecond=0
+
+        await interaction.followup.send(
+            f"❌ **Fehler beim Monatsreset:**\n```{e}```",
+            ephemeral=True
         )
-
-    wartezeit = (naechster_monat - jetzt).total_seconds()
-
-    stunden = int(wartezeit // 3600)
-    minuten = int((wartezeit % 3600) // 60)
-    sekunden = int(wartezeit % 60)
-
-    await interaction.response.send_message(
-        f"🧪 **Monatsreset-Test**\n\n"
-        f"🇦🇹 Aktuelle Zeit: "
-        f"`{jetzt.strftime('%d.%m.%Y %H:%M:%S')}`\n\n"
-        f"⏰ Nächster Reset: "
-        f"`{naechster_monat.strftime('%d.%m.%Y %H:%M:%S')}`\n\n"
-        f"⏳ Noch: **{stunden} Stunden, "
-        f"{minuten} Minuten, {sekunden} Sekunden**\n\n"
-        f"🌍 Zeitzone: `Europe/Vienna`\n"
-        f"✅ **Keine Daten wurden verändert.**",
-        ephemeral=True
-    )
 
 @tree.command(name="ziel", description="Zeigt deinen naechsten Meilenstein und Rang")
 async def slash_ziel(interaction: discord.Interaction):
