@@ -917,9 +917,14 @@ async def monatlicher_reset_scheduler():
 
             await asyncio.sleep(60)
 
+GUILD_ID = 1463104622779695159
+GUILD_OBJECT = discord.Object(id=GUILD_ID)
+
+
 @tree.command(
     name="test_monatsreset",
-    description="Führt den Monatsreset testweise sofort aus"
+    description="Führt den Monatsreset testweise sofort aus",
+    guild=GUILD_OBJECT
 )
 async def test_monatsreset(interaction: discord.Interaction):
 
@@ -936,7 +941,6 @@ async def test_monatsreset(interaction: discord.Interaction):
     await interaction.response.defer(ephemeral=True)
 
     try:
-
         print(
             "🧪 TEST: Monatsreset wird gestartet...",
             flush=True
@@ -945,12 +949,6 @@ async def test_monatsreset(interaction: discord.Interaction):
         erfolg = await monatlicher_reset(force=True)
 
         if erfolg:
-
-            print(
-                "✅ TEST: Monatsreset erfolgreich.",
-                flush=True
-            )
-
             await interaction.followup.send(
                 "🧪 **Monatsreset erfolgreich getestet!**\n\n"
                 "🏆 Monatssieger wurde ermittelt.\n"
@@ -959,14 +957,7 @@ async def test_monatsreset(interaction: discord.Interaction):
                 "🛡️ Die aktuelle Rangliste wurde **NICHT** gelöscht.",
                 ephemeral=True
             )
-
         else:
-
-            print(
-                "⚠️ TEST: Monatsreset hat False zurückgegeben.",
-                flush=True
-            )
-
             await interaction.followup.send(
                 "⚠️ Der Monatsreset wurde nicht ausgeführt.\n"
                 "Bitte die Railway-Logs prüfen.",
@@ -974,7 +965,6 @@ async def test_monatsreset(interaction: discord.Interaction):
             )
 
     except Exception as e:
-
         print(
             f"❌ TEST-MONATSRESET FEHLER: {repr(e)}",
             flush=True
@@ -984,6 +974,8 @@ async def test_monatsreset(interaction: discord.Interaction):
             f"❌ **Fehler beim Monatsreset:**\n```{e}```",
             ephemeral=True
         )
+
+    
 
 async def geburtstag_checker():
     """Prüft täglich um 09:00 Uhr ob jemand Geburtstag hat."""
