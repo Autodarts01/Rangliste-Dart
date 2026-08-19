@@ -1253,11 +1253,25 @@ async def on_ready():
     print("⏳ Starte Slash-Command-Synchronisierung...", flush=True)
 
     try:
-        await tree.sync(guild=guild)
-        print(
-            f"✅ Slash Commands für Server {GUILD_ID} synchronisiert!",
-            flush=True
-        )
+    await tree.sync(guild=guild)
+
+    print(
+        f"✅ Slash Commands für Server {GUILD_ID} synchronisiert!",
+        flush=True
+    )
+
+    print(
+        "📋 Registrierte Commands:",
+        [cmd.name for cmd in tree.get_commands()],
+        flush=True
+    )
+
+except Exception as e:
+    print(
+        f"❌ Slash-Sync Fehler: {repr(e)}",
+        flush=True
+    )
+
     except Exception as e:
         print(f"❌ Slash-Sync Fehler: {repr(e)}", flush=True)
 
