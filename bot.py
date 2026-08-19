@@ -477,18 +477,30 @@ VIENNA_TZ = ZoneInfo("Europe/Vienna")
 MONTHLY_RESET_MARKER = "last_monthly_reset.txt"
 
 
-def monatlicher_reset(force=False):
+async def monatlicher_reset(force=False):
     """
-    Archiviert das aktuelle Ergebnisse-Sheet und startet
-    eine neue Rangliste.
+    Monatsreset mit automatischem Monatssieger.
 
-    force=True erlaubt einen manuellen Test außerhalb
-    des 1. Monats.
+    Echter Reset:
+    1. Monatssieger ermitteln
+    2. Monatssieger in #bullseye-rangliste posten
+    3. Daten archivieren
+    4. aktuelle Rangliste leeren
+
+    force=True:
+    Testmodus:
+    - Monatssieger wird gepostet
+    - Test-Archiv wird erstellt
+    - aktuelle Rangliste bleibt erhalten
     """
+
     try:
         jetzt = datetime.now(VIENNA_TZ)
 
-        # Sicherheitsprüfung
+        # ==========================================
+        # SICHERHEITSPRÜFUNG
+        # ==========================================
+
         if not force and jetzt.day != 1:
             print(
                 f"ℹ️ Monatsreset nicht ausgeführt: "
@@ -499,70 +511,340 @@ def monatlicher_reset(force=False):
 
         monat_key = jetzt.strftime("%Y-%m")
 
-        # Bei einem Test keinen normalen Monatsmarker verwenden
-        marker_key = monat_key if not force else f"TEST-{jetzt.strftime('%Y%m%d-%H%M%S')}"
+        # ==========================================
+        # MARKER PRÜFEN
+        # ==========================================
 
         if not force and os.path.exists(MONTHLY_RESET_MARKER):
-            with open(MONTHLY_RESET_MARKER, "r", encoding="utf-8") as f:
+
+            with open(
+                MONTHLY_RESET_MARKER,
+                "r",
+                encoding="utf-8"
+            ) as f:
                 letzter_reset = f.read().strip()
 
             if letzter_reset == monat_key:
                 print(
-                    f"ℹ️ Monatsreset {monat_key} wurde bereits durchgeführt.",
+                    f"ℹ️ Monatsreset {monat_key} "
+                    f"wurde bereits durchgeführt.",
                     flush=True
                 )
                 return False
 
-        # Aktuelle Daten lesen
+        # ==========================================
+        # AKTUELLE DATEN LESEN
+        # ==========================================
+
         all_rows = sheet.get_all_values()
 
         if len(all_rows) <= 1:
             print(
-                "ℹ️ Monatsreset: Keine Spiele zum Archivieren vorhanden.",
+                "ℹ️ Monatsreset: Keine Spiele vorhanden.",
                 flush=True
             )
             return False
 
-        # Spreadsheet öffnen
+        # ==========================================
+        # 🏆 SPIELE AUSWERTEN
+        # ==========================================
+
+        player_games = defaultdict(int)
+        player_wins = defaultdict(int)
+        player_draws = defaultdict(int)
+
+        for row in all_rows[1:]:
+
+            if len(row) < 3:
+                continue
+
+            p1 = row[0].strip()
+            p2 = row[1].strip()
+            winner = row[2].strip()
+
+            if not p1 or not p2:
+                continue
+
+            player_games[p1] += 1
+            player_games[p2] += 1
+
+            if winner == "Unentschieden":
+                player_draws[p1] += 1
+                player_draws[p2] += 1
+
+            elif winner:
+                player_wins[winner] += 1
+
+        # ==========================================
+        # 📊 RANKING
+        # ==========================================
+
+        ranking = []
+
+        for spieler, spiele in player_games.items():
+
+            # Mindestens 3 Spiele
+            if spiele < 3:
+                continue
+
+            siege = player_wins[spieler]
+            unentschieden = player_draws[spieler]
+
+            niederlagen = (
+                spiele
+                - siege
+                - unentschieden
+            )
+
+            winrate = (
+                siege / spiele
+                if spiele > 0
+                else 0
+            )
+
+            ranking.append(
+                (
+                    spieler,
+                    spiele,
+                    siege,
+                    niederlagen,
+                    unentschieden,
+                    winrate
+                )
+            )
+
+        # ==========================================
+        # 🥇 RANKING SORTIEREN
+        # ==========================================
+
+        ranking.sort(
+            key=lambda x: (
+                x[2],  # Siege
+                x[5],  # Winrate
+                x[1]   # Spiele
+            ),
+            reverse=True
+        )
+
+        # ==========================================
+        # 📢 MONATSSIEGER POSTEN
+        # ==========================================
+
+        if ranking:
+
+            try:
+
+                channel = discord.utils.get(
+                    client.get_all_channels(),
+                    name="bullseye-rangliste"
+                )
+
+                if channel:
+
+                    emojis = [
+                        "🥇",
+                        "🥈",
+                        "🥉"
+                    ]
+
+                    # Deutsche Monatsnamen
+                    monate = [
+                        "Januar",
+                        "Februar",
+                        "März",
+                        "April",
+                        "Mai",
+                        "Juni",
+                        "Juli",
+                        "August",
+                        "September",
+                        "Oktober",
+                        "November",
+                        "Dezember"
+                    ]
+
+                    monat_name = (
+                        f"{monate[jetzt.month - 1]} "
+                        f"{jetzt.year}"
+                    )
+
+                    msg = (
+                        f"🏆 **MONATSSIEGER – "
+                        f"{monat_name.upper()}**\n"
+                        f"━━━━━━━━━━━━━━━━━━━━\n\n"
+                    )
+
+                    # TOP 3
+                    for i, daten in enumerate(
+                        ranking[:3]
+                    ):
+
+                        (
+                            name,
+                            spiele,
+                            siege,
+                            niederlagen,
+                            unentschieden,
+                            winrate
+                        ) = daten
+
+                        msg += (
+                            f"{emojis[i]} **{name}**\n"
+                            f"🎮 {spiele} Spiele | "
+                            f"🏆 {siege} Siege | "
+                            f"💀 {niederlagen} Niederlagen | "
+                            f"🤝 {unentschieden} Unentschieden | "
+                            f"📈 {round(winrate * 100, 1)} %\n\n"
+                        )
+
+                    # ==================================
+                    # 👑 MONATSSIEGER
+                    # ==================================
+
+                    sieger = ranking[0]
+
+                    msg += (
+                        f"👑 **Monatssieger: "
+                        f"{sieger[0]}!**\n"
+                        f"🎯 Herzlichen Glückwunsch! 🔥"
+                    )
+
+                    await channel.send(msg)
+
+                    print(
+                        f"🏆 Monatssieger gepostet: "
+                        f"{sieger[0]}",
+                        flush=True
+                    )
+
+                else:
+
+                    print(
+                        f"❌ Kanal #{CHANNEL_NAME} "
+                        f"nicht gefunden.",
+                        flush=True
+                    )
+
+            except Exception as e:
+
+                print(
+                    f"❌ Fehler beim Monatssieger-Post: "
+                    f"{repr(e)}",
+                    flush=True
+                )
+
+        else:
+
+            print(
+                "ℹ️ Kein qualifizierter Spieler "
+                "für den Monatssieg.",
+                flush=True
+            )
+
+        # ==========================================
+        # 📊 GOOGLE SHEET ÖFFNEN
+        # ==========================================
+
         wb = gs_client.open_by_key(
             "19Ax_hj9exjwfM6NPyw9JBL2ad3qW1_LOkMHddJ6stlc"
         )
 
-        # Archivname
-        if force:
-            archiv_name = f"TEST_Archiv_{jetzt.strftime('%Y-%m-%d_%H-%M-%S')}"
-        else:
-            archiv_name = f"Archiv_{jetzt.strftime('%Y-%m')}"
+        # ==========================================
+        # 📦 ARCHIVNAME
+        # ==========================================
 
-        # Archiv erstellen
+        if force:
+
+            archiv_name = (
+                f"TEST_Archiv_"
+                f"{jetzt.strftime('%Y-%m-%d_%H-%M-%S')}"
+            )
+
+        else:
+
+            archiv_name = (
+                f"Archiv_"
+                f"{jetzt.strftime('%Y-%m')}"
+            )
+
+        # ==========================================
+        # ARCHIV ERSTELLEN
+        # ==========================================
+
         try:
-            archiv_sheet = wb.worksheet(archiv_name)
+
+            archiv_sheet = wb.worksheet(
+                archiv_name
+            )
+
         except Exception:
+
             archiv_sheet = wb.add_worksheet(
                 title=archiv_name,
                 rows=1000,
                 cols=20
             )
 
-        # Daten archivieren
         archiv_sheet.clear()
-        archiv_sheet.update("A1", all_rows)
 
-        # Header behalten
+        archiv_sheet.update(
+            "A1",
+            all_rows
+        )
+
+        print(
+            f"📦 Archiv erstellt: {archiv_name}",
+            flush=True
+        )
+
+        # ==========================================
+        # 🧪 TESTMODUS
+        # ==========================================
+
+        if force:
+
+            print(
+                "🧪 TEST-MONATSRESET ERFOLGREICH",
+                flush=True
+            )
+
+            print(
+                "🛡️ Aktuelle Rangliste "
+                "wurde NICHT gelöscht.",
+                flush=True
+            )
+
+            return True
+
+        # ==========================================
+        # 🧹 ECHTEN RESET DURCHFÜHREN
+        # ==========================================
+
         header = all_rows[0]
 
-        # Aktuelle Rangliste leeren
         sheet.clear()
-        sheet.update("A1", [header])
 
-        # Nur beim echten Monatsreset Marker setzen
-        if not force:
-            with open(MONTHLY_RESET_MARKER, "w", encoding="utf-8") as f:
-                f.write(marker_key)
+        sheet.update(
+            "A1",
+            [header]
+        )
+
+        # ==========================================
+        # 💾 RESET MARKIEREN
+        # ==========================================
+
+        with open(
+            MONTHLY_RESET_MARKER,
+            "w",
+            encoding="utf-8"
+        ) as f:
+
+            f.write(monat_key)
 
         print(
             f"🔄 MONATSRESET ERFOLGREICH | "
-            f"{jetzt.strftime('%d.%m.%Y %H:%M:%S')} Europe/Vienna | "
+            f"{jetzt.strftime('%d.%m.%Y %H:%M:%S')} "
+            f"Europe/Vienna | "
             f"Archiv: {archiv_name} | "
             f"Spiele: {len(all_rows) - 1}",
             flush=True
@@ -571,21 +853,27 @@ def monatlicher_reset(force=False):
         return True
 
     except Exception as e:
+
         print(
             f"❌ MONATSRESET ERROR: {repr(e)}",
             flush=True
         )
+
         return False
 
 
+# ==========================================
+# ⏰ MONATSRESET SCHEDULER
+# ==========================================
+
 async def monatlicher_reset_scheduler():
-    """
-    Prüft regelmäßig, ob der Monatsreset fällig ist.
-    Zeitzone: Europe/Vienna
-    """
+
     await client.wait_until_ready()
 
-    print("⏰ Monatsreset-Scheduler gestartet.", flush=True)
+    print(
+        "⏰ Monatsreset-Scheduler gestartet.",
+        flush=True
+    )
 
     while not client.is_closed():
 
@@ -593,25 +881,30 @@ async def monatlicher_reset_scheduler():
 
         print(
             f"⏰ Monatsreset-Prüfung: "
-            f"{jetzt.strftime('%d.%m.%Y %H:%M:%S')} Europe/Vienna",
+            f"{jetzt.strftime('%d.%m.%Y %H:%M:%S')} "
+            f"Europe/Vienna",
             flush=True
         )
 
-        # Nur am 1. des Monats
+        # ======================================
+        # NUR AM 1. DES MONATS
+        # ======================================
+
         if jetzt.day == 1:
 
             print(
-                "🔍 Heute ist der 1. - prüfe Monatsreset...",
+                "🔍 Heute ist der 1. - "
+                "prüfe Monatsreset...",
                 flush=True
             )
 
-            monatlicher_reset()
+            await monatlicher_reset()
 
-            # Nicht mehrfach ausführen
+            # Schutz gegen mehrfaches Ausführen
             await asyncio.sleep(70)
 
         else:
-            # Alle 60 Sekunden prüfen
+
             await asyncio.sleep(60)
 
 
@@ -2184,16 +2477,18 @@ async def test_monatsreset(interaction: discord.Interaction):
 
         erfolg = monatlicher_reset(force=True)
 
-        if erfolg:
-            print("✅ TEST: Monatsreset erfolgreich.", flush=True)
+       if erfolg:
+    print("✅ TEST: Monatsreset erfolgreich.", flush=True)
 
-            await interaction.followup.send(
-                "🧪 **Monatsreset erfolgreich getestet!**\n\n"
-                "✅ Das aktuelle Sheet wurde archiviert.\n"
-                "✅ Die Rangliste wurde geleert.\n"
-                "✅ Der Header wurde behalten.",
-                ephemeral=True
-            )
+    await interaction.followup.send(
+        "🧪 **Monatsreset erfolgreich getestet!**\n\n"
+        "🏆 Monatssieger wurde ermittelt.\n"
+        "📢 Ergebnis wurde in #bullseye-rangliste gepostet.\n"
+        "📦 Test-Archiv wurde erstellt.\n"
+        "🛡️ Die aktuelle Rangliste wurde NICHT gelöscht.",
+        ephemeral=True
+    )
+    
         else:
             print("⚠️ TEST: Monatsreset hat False zurückgegeben.", flush=True)
 
