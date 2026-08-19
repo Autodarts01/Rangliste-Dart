@@ -917,6 +917,73 @@ async def monatlicher_reset_scheduler():
 
             await asyncio.sleep(60)
 
+@tree.command(
+    name="test_monatsreset",
+    description="Führt den Monatsreset testweise sofort aus"
+)
+async def test_monatsreset(interaction: discord.Interaction):
+
+    if not any(
+        role.id in ADMIN_ROLE_IDS
+        for role in interaction.user.roles
+    ):
+        await interaction.response.send_message(
+            "❌ Keine Berechtigung.",
+            ephemeral=True
+        )
+        return
+
+    await interaction.response.defer(ephemeral=True)
+
+    try:
+
+        print(
+            "🧪 TEST: Monatsreset wird gestartet...",
+            flush=True
+        )
+
+        erfolg = await monatlicher_reset(force=True)
+
+        if erfolg:
+
+            print(
+                "✅ TEST: Monatsreset erfolgreich.",
+                flush=True
+            )
+
+            await interaction.followup.send(
+                "🧪 **Monatsreset erfolgreich getestet!**\n\n"
+                "🏆 Monatssieger wurde ermittelt.\n"
+                "📢 Ergebnis wurde in #bullseye-rangliste gepostet.\n"
+                "📦 Test-Archiv wurde erstellt.\n"
+                "🛡️ Die aktuelle Rangliste wurde **NICHT** gelöscht.",
+                ephemeral=True
+            )
+
+        else:
+
+            print(
+                "⚠️ TEST: Monatsreset hat False zurückgegeben.",
+                flush=True
+            )
+
+            await interaction.followup.send(
+                "⚠️ Der Monatsreset wurde nicht ausgeführt.\n"
+                "Bitte die Railway-Logs prüfen.",
+                ephemeral=True
+            )
+
+    except Exception as e:
+
+        print(
+            f"❌ TEST-MONATSRESET FEHLER: {repr(e)}",
+            flush=True
+        )
+
+        await interaction.followup.send(
+            f"❌ **Fehler beim Monatsreset:**\n```{e}```",
+            ephemeral=True
+        )
 
 async def geburtstag_checker():
     """Prüft täglich um 09:00 Uhr ob jemand Geburtstag hat."""
@@ -2467,73 +2534,7 @@ async def slash_ich(interaction: discord.Interaction):
     except Exception as e:
         await interaction.response.send_message(f"Fehler: {e}", ephemeral=True)
 
-@tree.command(
-    name="test_monatsreset",
-    description="Führt den Monatsreset testweise sofort aus"
-)
-async def test_monatsreset(interaction: discord.Interaction):
 
-    if not any(
-        role.id in ADMIN_ROLE_IDS
-        for role in interaction.user.roles
-    ):
-        await interaction.response.send_message(
-            "❌ Keine Berechtigung.",
-            ephemeral=True
-        )
-        return
-
-    await interaction.response.defer(ephemeral=True)
-
-    try:
-
-        print(
-            "🧪 TEST: Monatsreset wird gestartet...",
-            flush=True
-        )
-
-        erfolg = await monatlicher_reset(force=True)
-
-        if erfolg:
-
-            print(
-                "✅ TEST: Monatsreset erfolgreich.",
-                flush=True
-            )
-
-            await interaction.followup.send(
-                "🧪 **Monatsreset erfolgreich getestet!**\n\n"
-                "🏆 Monatssieger wurde ermittelt.\n"
-                "📢 Ergebnis wurde in #bullseye-rangliste gepostet.\n"
-                "📦 Test-Archiv wurde erstellt.\n"
-                "🛡️ Die aktuelle Rangliste wurde **NICHT** gelöscht.",
-                ephemeral=True
-            )
-
-        else:
-
-            print(
-                "⚠️ TEST: Monatsreset hat False zurückgegeben.",
-                flush=True
-            )
-
-            await interaction.followup.send(
-                "⚠️ Der Monatsreset wurde nicht ausgeführt.\n"
-                "Bitte die Railway-Logs prüfen.",
-                ephemeral=True
-            )
-
-    except Exception as e:
-
-        print(
-            f"❌ TEST-MONATSRESET FEHLER: {repr(e)}",
-            flush=True
-        )
-
-        await interaction.followup.send(
-            f"❌ **Fehler beim Monatsreset:**\n```{e}```",
-            ephemeral=True
-        )
 
 @tree.command(name="ziel", description="Zeigt deinen naechsten Meilenstein und Rang")
 async def slash_ziel(interaction: discord.Interaction):
