@@ -633,7 +633,6 @@ async def monatlicher_reset(force=False):
         if ranking:
 
             try:
-
                 channel = discord.utils.get(
                     client.get_all_channels(),
                     name="bullseye-rangliste"
@@ -641,32 +640,7 @@ async def monatlicher_reset(force=False):
 
                 if channel:
 
-                    emojis = [
-                        "🥇",
-                        "🥈",
-                        "🥉"
-                    ]
-
-                    # Deutsche Monatsnamen
-                    monate = [
-                        "Januar",
-                        "Februar",
-                        "März",
-                        "April",
-                        "Mai",
-                        "Juni",
-                        "Juli",
-                        "August",
-                        "September",
-                        "Oktober",
-                        "November",
-                        "Dezember"
-                    ]
-
-                    monat_name = (
-                        f"{monate[jetzt.month - 1]} "
-                        f"{jetzt.year}"
-                    )
+                    emojis = ["🥇", "🥈", "🥉"]
 
                     msg = (
                         f"🏆 **MONATSSIEGER – "
@@ -675,9 +649,7 @@ async def monatlicher_reset(force=False):
                     )
 
                     # TOP 3
-                    for i, daten in enumerate(
-                        ranking[:3]
-                    ):
+                    for i, daten in enumerate(ranking[:3]):
 
                         (
                             name,
@@ -697,10 +669,7 @@ async def monatlicher_reset(force=False):
                             f"📈 {round(winrate * 100, 1)} %\n\n"
                         )
 
-                    # ==================================
-                    # 👑 MONATSSIEGER
-                    # ==================================
-
+                    # Monatssieger
                     sieger = ranking[0]
 
                     msg += (
@@ -711,7 +680,7 @@ async def monatlicher_reset(force=False):
 
                     await channel.send(msg)
 
-                                        print(
+                    print(
                         f"🏆 Monatssieger gepostet: "
                         f"{sieger[0]}",
                         flush=True
