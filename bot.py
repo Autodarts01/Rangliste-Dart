@@ -2473,7 +2473,10 @@ async def slash_ich(interaction: discord.Interaction):
 )
 async def test_monatsreset(interaction: discord.Interaction):
 
-    if not any(role.id in ADMIN_ROLE_IDS for role in interaction.user.roles):
+    if not any(
+        role.id in ADMIN_ROLE_IDS
+        for role in interaction.user.roles
+    ):
         await interaction.response.send_message(
             "❌ Keine Berechtigung.",
             ephemeral=True
@@ -2483,24 +2486,36 @@ async def test_monatsreset(interaction: discord.Interaction):
     await interaction.response.defer(ephemeral=True)
 
     try:
-        print("🧪 TEST: Monatsreset wird gestartet...", flush=True)
 
-        erfolg = monatlicher_reset(force=True)
+        print(
+            "🧪 TEST: Monatsreset wird gestartet...",
+            flush=True
+        )
 
-       if erfolg:
-    print("✅ TEST: Monatsreset erfolgreich.", flush=True)
+        erfolg = await monatlicher_reset(force=True)
 
-    await interaction.followup.send(
-        "🧪 **Monatsreset erfolgreich getestet!**\n\n"
-        "🏆 Monatssieger wurde ermittelt.\n"
-        "📢 Ergebnis wurde in #bullseye-rangliste gepostet.\n"
-        "📦 Test-Archiv wurde erstellt.\n"
-        "🛡️ Die aktuelle Rangliste wurde NICHT gelöscht.",
-        ephemeral=True
-    )
-    
+        if erfolg:
+
+            print(
+                "✅ TEST: Monatsreset erfolgreich.",
+                flush=True
+            )
+
+            await interaction.followup.send(
+                "🧪 **Monatsreset erfolgreich getestet!**\n\n"
+                "🏆 Monatssieger wurde ermittelt.\n"
+                "📢 Ergebnis wurde in #bullseye-rangliste gepostet.\n"
+                "📦 Test-Archiv wurde erstellt.\n"
+                "🛡️ Die aktuelle Rangliste wurde **NICHT** gelöscht.",
+                ephemeral=True
+            )
+
         else:
-            print("⚠️ TEST: Monatsreset hat False zurückgegeben.", flush=True)
+
+            print(
+                "⚠️ TEST: Monatsreset hat False zurückgegeben.",
+                flush=True
+            )
 
             await interaction.followup.send(
                 "⚠️ Der Monatsreset wurde nicht ausgeführt.\n"
@@ -2509,6 +2524,7 @@ async def test_monatsreset(interaction: discord.Interaction):
             )
 
     except Exception as e:
+
         print(
             f"❌ TEST-MONATSRESET FEHLER: {repr(e)}",
             flush=True
