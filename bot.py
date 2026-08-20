@@ -467,7 +467,14 @@ async def tabelle_scheduler():
         await asyncio.sleep(wait_seconds)
         await post_tabelle()
         
-        # ==========================================
+# ==========================================
+# 🏠 DISCORD SERVER
+# ==========================================
+
+GUILD_ID = 1463104622779695159
+GUILD_OBJECT = discord.Object(id=GUILD_ID)
+        
+# ==========================================
 # 📰 MANFRED NEWS
 # ==========================================
 
