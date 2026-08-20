@@ -467,6 +467,404 @@ async def tabelle_scheduler():
         await asyncio.sleep(wait_seconds)
         await post_tabelle()
         
+        # ==========================================
+# 📰 MANFRED NEWS
+# ==========================================
+
+MANFRED_NEWS_CHANNEL = "manfred-news"
+MANFRED_NEWS_MARKER = "Manfred_News_marker.txt"
+
+
+# ==========================================
+# 💾 NEWS MARKER LESEN
+# ==========================================
+
+def lese_news_marker():
+    """Liest den letzten News-Stand."""
+
+    try:
+
+        if os.path.exists(MANFRED_NEWS_MARKER):
+
+            with open(
+                MANFRED_NEWS_MARKER,
+                "r",
+                encoding="utf-8"
+            ) as f:
+
+                return f.read().strip()
+
+    except Exception as e:
+
+        print(
+            f"❌ Fehler beim Lesen des News-Markers: "
+            f"{repr(e)}",
+            flush=True
+        )
+
+    return ""
+
+
+# ==========================================
+# 💾 NEWS MARKER SPEICHERN
+# ==========================================
+
+def speichere_news_marker(wert):
+    """Speichert den aktuellen News-Stand."""
+
+    try:
+
+        with open(
+            MANFRED_NEWS_MARKER,
+            "w",
+            encoding="utf-8"
+        ) as f:
+
+            f.write(str(wert))
+
+    except Exception as e:
+
+        print(
+            f"❌ Fehler beim Speichern des News-Markers: "
+            f"{repr(e)}",
+            flush=True
+        )
+
+
+# ==========================================
+# 📰 MANFRED NEWS ERMITTELN
+# ==========================================
+
+def ermittle_manfred_news():
+    """
+    Erstellt eine News aus der aktuellen Rangliste.
+
+    Verwendet die vorhandene get_tabelle().
+
+    Die normale Rangliste wird NICHT verändert.
+    """
+
+    try:
+
+        tabelle = get_tabelle()
+
+        if not tabelle:
+            return None
+
+        # ==========================================
+        # 🏆 TABELLENFÜHRER
+        # ==========================================
+
+        leader = tabelle[0]
+
+        leader_name = leader["name"]
+        leader_punkte = leader["punkte"]
+
+        # ==========================================
+        # 📰 NEWS-ID
+        # ==========================================
+
+        news_id = (
+            f"{leader_name}|"
+            f"{leader_punkte}|"
+            f"{len(tabelle)}"
+        )
+
+        letzter_marker = lese_news_marker()
+
+        # Keine Änderung
+        if news_id == letzter_marker:
+
+            return None
+
+        # ==========================================
+        # 💯 100 PUNKTE
+        # ==========================================
+
+        if leader_punkte >= 100:
+
+            text = (
+                "💯 **MANFRED NEWS**\n\n"
+                f"🏆 **{leader_name}** hat die "
+                "100-Punkte-Marke geknackt!\n\n"
+                f"🎯 Punkte: **{leader_punkte}**\n"
+                f"🎮 Spiele: **{leader['spiele']}**\n"
+                f"🏆 Siege: **{leader['siege']}**\n"
+                f"❌ Niederlagen: **{leader['niederlagen']}**\n"
+                f"📈 Leg-Differenz: "
+                f"**{leader['leg_dif']:+d}**\n\n"
+                "🤖 **Manfred sagt:**\n"
+                "\"Das sieht nach Meisterschaft aus! 🎯\""
+            )
+
+        # ==========================================
+        # 🔥 10 SIEGE
+        # ==========================================
+
+        elif leader["siege"] >= 10:
+
+            text = (
+                "🔥 **MANFRED NEWS**\n\n"
+                f"🏆 **{leader_name}** kommt bereits "
+                f"auf **{leader['siege']} Siege**!\n\n"
+                f"🎯 Punkte: **{leader_punkte}**\n"
+                f"🎮 Spiele: **{leader['spiele']}**\n"
+                f"🏆 Siege: **{leader['siege']}**\n"
+                f"📈 Leg-Differenz: "
+                f"**{leader['leg_dif']:+d}**\n\n"
+                "🤖 **Manfred sagt:**\n"
+                "\"Da läuft's! 🔥🎯\""
+            )
+
+        # ==========================================
+        # 📰 NORMALE NEWS
+        # ==========================================
+
+        else:
+
+            text = (
+                "📰 **MANFRED NEWS**\n\n"
+                f"🏆 **{leader_name}** führt aktuell "
+                "die Rangliste an!\n\n"
+                f"🎯 Punkte: **{leader_punkte}**\n"
+                f"🎮 Spiele: **{leader['spiele']}**\n"
+                f"🏆 Siege: **{leader['siege']}**\n"
+                f"❌ Niederlagen: **{leader['niederlagen']}**\n"
+                f"📈 Leg-Differenz: "
+                f"**{leader['leg_dif']:+d}**\n\n"
+                "🤖 Manfred beobachtet die Lage... 👀🎯"
+            )
+
+        # ==========================================
+        # 💾 MARKER SPEICHERN
+        # ==========================================
+
+        speichere_news_marker(news_id)
+
+        return text
+
+    except Exception as e:
+
+        print(
+            f"❌ Fehler bei Manfred News: "
+            f"{repr(e)}",
+            flush=True
+        )
+
+        return None
+
+
+# ==========================================
+# 📢 MANFRED NEWS SENDEN
+# ==========================================
+
+async def sende_manfred_news(force=False):
+    """
+    Prüft die Rangliste und sendet bei Bedarf
+    eine Manfred News.
+    """
+
+    try:
+
+        channel = discord.utils.get(
+            client.get_all_channels(),
+            name=MANFRED_NEWS_CHANNEL
+        )
+
+        if channel is None:
+
+            print(
+                f"❌ Kanal #{MANFRED_NEWS_CHANNEL} "
+                "nicht gefunden.",
+                flush=True
+            )
+
+            return False
+
+        # ==========================================
+        # 🧪 TESTMODUS
+        # ==========================================
+
+        if force:
+
+            tabelle = get_tabelle()
+
+            if not tabelle:
+
+                await channel.send(
+                    "🧪 **MANFRED NEWS – TEST**\n\n"
+                    "ℹ️ Aktuell sind keine "
+                    "Spielerdaten vorhanden."
+                )
+
+                return True
+
+            leader = tabelle[0]
+
+            text = (
+                "🧪 **MANFRED NEWS – TEST**\n\n"
+                f"🏆 Tabellenführer: "
+                f"**{leader['name']}**\n"
+                f"🎯 Punkte: **{leader['punkte']}**\n"
+                f"🎮 Spiele: **{leader['spiele']}**\n"
+                f"🏆 Siege: **{leader['siege']}**\n"
+                f"❌ Niederlagen: "
+                f"**{leader['niederlagen']}**\n"
+                f"📈 Leg-Differenz: "
+                f"**{leader['leg_dif']:+d}**\n\n"
+                "🤖 **Manfred News funktioniert!** 🎯"
+            )
+
+            await channel.send(text)
+
+            print(
+                "🧪 Manfred News Test erfolgreich.",
+                flush=True
+            )
+
+            return True
+
+        # ==========================================
+        # 📰 NORMALE NEWS
+        # ==========================================
+
+        text = ermittle_manfred_news()
+
+        if not text:
+
+            print(
+                "ℹ️ Keine neue Manfred News.",
+                flush=True
+            )
+
+            return False
+
+        await channel.send(text)
+
+        print(
+            "📰 Manfred News wurde veröffentlicht.",
+            flush=True
+        )
+
+        return True
+
+    except Exception as e:
+
+        print(
+            f"❌ Fehler beim Senden der Manfred News: "
+            f"{repr(e)}",
+            flush=True
+        )
+
+        return False
+
+
+# ==========================================
+# 🧪 /TEST_NEWS
+# ==========================================
+
+@tree.command(
+    name="test_news",
+    description="Testet die Manfred News",
+    guild=GUILD_OBJECT
+)
+async def test_news(interaction: discord.Interaction):
+
+    if not any(
+        role.id in ADMIN_ROLE_IDS
+        for role in interaction.user.roles
+    ):
+
+        await interaction.response.send_message(
+            "❌ Keine Berechtigung.",
+            ephemeral=True
+        )
+
+        return
+
+    await interaction.response.defer(
+        ephemeral=True
+    )
+
+    try:
+
+        print(
+            "🧪 TEST: Manfred News wird gestartet...",
+            flush=True
+        )
+
+        erfolg = await sende_manfred_news(
+            force=True
+        )
+
+        if erfolg:
+
+            await interaction.followup.send(
+                "📰 **Manfred News erfolgreich getestet!**\n\n"
+                "📢 Die Testmeldung wurde in "
+                "**#Manfred News** gepostet.",
+                ephemeral=True
+            )
+
+        else:
+
+            await interaction.followup.send(
+                "⚠️ Manfred News konnte nicht "
+                "gesendet werden.\n\n"
+                "Bitte Railway-Logs prüfen.",
+                ephemeral=True
+            )
+
+    except Exception as e:
+
+        print(
+            f"❌ TEST-NEWS FEHLER: "
+            f"{repr(e)}",
+            flush=True
+        )
+
+        await interaction.followup.send(
+            f"❌ **Fehler bei Manfred News:**\n"
+            f"```{e}```",
+            ephemeral=True
+        )
+
+
+# ==========================================
+# ⏰ MANFRED NEWS SCHEDULER
+# ==========================================
+
+async def manfred_news_scheduler():
+
+    await client.wait_until_ready()
+
+    print(
+        "📰 Manfred-News-Scheduler gestartet.",
+        flush=True
+    )
+
+    while not client.is_closed():
+
+        try:
+
+            print(
+                "📰 Prüfe Manfred News...",
+                flush=True
+            )
+
+            await sende_manfred_news()
+
+        except Exception as e:
+
+            print(
+                f"❌ Manfred-News-Scheduler Fehler: "
+                f"{repr(e)}",
+                flush=True
+            )
+
+        # Alle 30 Minuten prüfen
+        await asyncio.sleep(1800)
+        
 # ==========================================
 # AUTOMATISCHER MONATSRESET
 # ==========================================
@@ -1142,6 +1540,7 @@ async def on_ready():
     client.loop.create_task(geburtstag_checker())
     client.loop.create_task(warteliste_scheduler())
     asyncio.create_task(monatlicher_reset_scheduler())
+    asyncio.create_task(manfred_news_scheduler())
 
     print("✅ Hintergrund-Tasks gestartet!", flush=True)
 
