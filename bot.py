@@ -479,15 +479,16 @@ GUILD_OBJECT = discord.Object(id=GUILD_ID)
 # ==========================================
 
 MANFRED_NEWS_CHANNEL = "manfred-news"
+
 MANFRED_NEWS_MARKER = "Manfred_News_marker.txt"
+MANFRED_NEWS_SERIES_MARKER = "Manfred_News_Serien.txt"
 
 
 # ==========================================
-# 💾 NEWS MARKER LESEN
+# 💾 MARKER LESEN
 # ==========================================
 
 def lese_news_marker():
-    """Liest den letzten News-Stand."""
 
     try:
 
@@ -513,11 +514,10 @@ def lese_news_marker():
 
 
 # ==========================================
-# 💾 NEWS MARKER SPEICHERN
+# 💾 MARKER SPEICHERN
 # ==========================================
 
 def speichere_news_marker(wert):
-    """Speichert den aktuellen News-Stand."""
 
     try:
 
@@ -539,17 +539,99 @@ def speichere_news_marker(wert):
 
 
 # ==========================================
+# 🔥 SIEGESSERIEN
+# ==========================================
+
+def ermittle_siegesserien():
+
+    serien = {}
+
+    try:
+
+        rows = sheet.get_all_values()
+
+        # Spieler vorbereiten
+
+        for row in rows:
+
+            if len(row) < 7:
+                continue
+
+            p1 = row[0].strip()
+            p2 = row[1].strip()
+
+            if not p1 or not p2:
+                continue
+
+            if p1.lower() == "spieler a":
+                continue
+
+            if p1 not in serien:
+                serien[p1] = 0
+
+            if p2 not in serien:
+                serien[p2] = 0
+
+        # ==========================================
+        # SPIELE IN REIHENFOLGE DURCHGEHEN
+        # ==========================================
+
+        for row in rows:
+
+            if len(row) < 7:
+                continue
+
+            p1 = row[0].strip()
+            p2 = row[1].strip()
+            winner = row[6].strip()
+
+            if not p1 or not p2:
+                continue
+
+            if p1.lower() == "spieler a":
+                continue
+
+            if not winner:
+                continue
+
+            # Unentschieden beendet Serien
+
+            if winner.lower() == "unentschieden":
+
+                serien[p1] = 0
+                serien[p2] = 0
+                continue
+
+            # Gewinner bekommt +1
+
+            if normalize(winner) == normalize(p1):
+
+                serien[p1] = serien.get(p1, 0) + 1
+                serien[p2] = 0
+
+            elif normalize(winner) == normalize(p2):
+
+                serien[p2] = serien.get(p2, 0) + 1
+                serien[p1] = 0
+
+        return serien
+
+    except Exception as e:
+
+        print(
+            f"❌ Fehler bei Siegesserien: "
+            f"{repr(e)}",
+            flush=True
+        )
+
+        return {}
+
+
+# ==========================================
 # 📰 MANFRED NEWS ERMITTELN
 # ==========================================
 
 def ermittle_manfred_news():
-    """
-    Erstellt eine News aus der aktuellen Rangliste.
-
-    Verwendet die vorhandene get_tabelle().
-
-    Die normale Rangliste wird NICHT verändert.
-    """
 
     try:
 
@@ -558,6 +640,8 @@ def ermittle_manfred_news():
         if not tabelle:
             return None
 
+        serien = ermittle_siegesserien()
+
         # ==========================================
         # 🏆 TABELLENFÜHRER
         # ==========================================
@@ -565,30 +649,125 @@ def ermittle_manfred_news():
         leader = tabelle[0]
 
         leader_name = leader["name"]
+
         leader_punkte = leader["punkte"]
 
         # ==========================================
-        # 📰 NEWS-ID
+        # 📰 KOMPLETTE TABELLEN-ID
         # ==========================================
 
-        news_id = (
-            f"{leader_name}|"
-            f"{leader_punkte}|"
-            f"{len(tabelle)}"
+        news_id = "|".join(
+            f"{spieler['name']}:"
+            f"{spieler['spiele']}:"
+            f"{spieler['siege']}:"
+            f"{spieler['niederlagen']}:"
+            f"{spieler['legs_plus']}:"
+            f"{spieler['legs_minus']}:"
+            f"{spieler['leg_dif']}:"
+            f"{spieler['punkte']}"
+            for spieler in tabelle
         )
 
         letzter_marker = lese_news_marker()
 
-        # Keine Änderung
+        # Keine Tabellenänderung
+
         if news_id == letzter_marker:
 
             return None
 
         # ==========================================
+        # 🔥 SIEGESSERIE SUCHEN
+        # ==========================================
+
+        serien_events = []
+
+        for spieler, serie in serien.items():
+
+            if serie >= 10:
+
+                serien_events.append(
+                    (
+                        serie,
+                        "🔥",
+                        spieler,
+                        "unglaubliche"
+                    )
+                )
+
+            elif serie >= 5:
+
+                serien_events.append(
+                    (
+                        serie,
+                        "🔥",
+                        spieler,
+                        "starke"
+                    )
+                )
+
+            elif serie >= 3:
+
+                serien_events.append(
+                    (
+                        serie,
+                        "🔥",
+                        spieler,
+                        "aktuelle"
+                    )
+                )
+
+        # Größte Serie zuerst
+
+        serien_events.sort(
+            key=lambda x: x[0],
+            reverse=True
+        )
+
+        # ==========================================
+        # 🔥 SIEGESSERIE NEWS
+        # ==========================================
+
+        if serien_events:
+
+            serie, emoji, spieler, beschreibung = serien_events[0]
+
+            text = (
+                f"{emoji} **MANFRED NEWS**\n\n"
+                f"🏆 **{spieler}** hat eine "
+                f"{beschreibung} Siegesserie!\n\n"
+                f"🔥 **{serie} Siege in Folge!**\n\n"
+                f"🎯 Punkte: **"
+                f"{next("
+                    "(x['punkte'] for x in tabelle "
+                    "if x['name'] == spieler), 0"
+                )}**\n\n"
+                "🤖 **Manfred sagt:**\n"
+            )
+
+            if serie >= 10:
+
+                text += (
+                    "\"STOPPT DEN MANN! 🔥🔥🔥\""
+                )
+
+            elif serie >= 5:
+
+                text += (
+                    "\"Da läuft aber eine Serie! 🎯🔥\""
+                )
+
+            else:
+
+                text += (
+                    "\"Drei am Stück! Weiter so! 🎯\""
+                )
+
+        # ==========================================
         # 💯 100 PUNKTE
         # ==========================================
 
-        if leader_punkte >= 100:
+        elif leader_punkte >= 100:
 
             text = (
                 "💯 **MANFRED NEWS**\n\n"
@@ -597,7 +776,8 @@ def ermittle_manfred_news():
                 f"🎯 Punkte: **{leader_punkte}**\n"
                 f"🎮 Spiele: **{leader['spiele']}**\n"
                 f"🏆 Siege: **{leader['siege']}**\n"
-                f"❌ Niederlagen: **{leader['niederlagen']}**\n"
+                f"❌ Niederlagen: "
+                f"**{leader['niederlagen']}**\n"
                 f"📈 Leg-Differenz: "
                 f"**{leader['leg_dif']:+d}**\n\n"
                 "🤖 **Manfred sagt:**\n"
@@ -605,26 +785,7 @@ def ermittle_manfred_news():
             )
 
         # ==========================================
-        # 🔥 10 SIEGE
-        # ==========================================
-
-        elif leader["siege"] >= 10:
-
-            text = (
-                "🔥 **MANFRED NEWS**\n\n"
-                f"🏆 **{leader_name}** kommt bereits "
-                f"auf **{leader['siege']} Siege**!\n\n"
-                f"🎯 Punkte: **{leader_punkte}**\n"
-                f"🎮 Spiele: **{leader['spiele']}**\n"
-                f"🏆 Siege: **{leader['siege']}**\n"
-                f"📈 Leg-Differenz: "
-                f"**{leader['leg_dif']:+d}**\n\n"
-                "🤖 **Manfred sagt:**\n"
-                "\"Da läuft's! 🔥🎯\""
-            )
-
-        # ==========================================
-        # 📰 NORMALE NEWS
+        # 🏆 NORMALE TABELLEN NEWS
         # ==========================================
 
         else:
@@ -636,10 +797,12 @@ def ermittle_manfred_news():
                 f"🎯 Punkte: **{leader_punkte}**\n"
                 f"🎮 Spiele: **{leader['spiele']}**\n"
                 f"🏆 Siege: **{leader['siege']}**\n"
-                f"❌ Niederlagen: **{leader['niederlagen']}**\n"
+                f"❌ Niederlagen: "
+                f"**{leader['niederlagen']}**\n"
                 f"📈 Leg-Differenz: "
                 f"**{leader['leg_dif']:+d}**\n\n"
-                "🤖 Manfred beobachtet die Lage... 👀🎯"
+                "🤖 **Manfred:**\n"
+                "\"Die Tabelle bewegt sich! 👀🎯\""
             )
 
         # ==========================================
@@ -662,14 +825,10 @@ def ermittle_manfred_news():
 
 
 # ==========================================
-# 📢 MANFRED NEWS SENDEN
+# 📢 NEWS SENDEN
 # ==========================================
 
 async def sende_manfred_news(force=False):
-    """
-    Prüft die Rangliste und sendet bei Bedarf
-    eine Manfred News.
-    """
 
     try:
 
@@ -700,13 +859,19 @@ async def sende_manfred_news(force=False):
 
                 await channel.send(
                     "🧪 **MANFRED NEWS – TEST**\n\n"
-                    "ℹ️ Aktuell sind keine "
-                    "Spielerdaten vorhanden."
+                    "Keine Spielerdaten vorhanden."
                 )
 
                 return True
 
             leader = tabelle[0]
+
+            serien = ermittle_siegesserien()
+
+            serie = serien.get(
+                leader["name"],
+                0
+            )
 
             text = (
                 "🧪 **MANFRED NEWS – TEST**\n\n"
@@ -718,8 +883,8 @@ async def sende_manfred_news(force=False):
                 f"❌ Niederlagen: "
                 f"**{leader['niederlagen']}**\n"
                 f"📈 Leg-Differenz: "
-                f"**{leader['leg_dif']:+d}**\n\n"
-                "🤖 **Manfred News funktioniert!** 🎯"
+                f"**{leader['leg_dif']:+d}**\n"
+                f"🔥 Siegesserie: **{serie}**"
             )
 
             await channel.send(text)
@@ -775,7 +940,9 @@ async def sende_manfred_news(force=False):
     description="Testet die Manfred News",
     guild=GUILD_OBJECT
 )
-async def test_news(interaction: discord.Interaction):
+async def test_news(
+    interaction: discord.Interaction
+):
 
     if not any(
         role.id in ADMIN_ROLE_IDS
@@ -795,11 +962,6 @@ async def test_news(interaction: discord.Interaction):
 
     try:
 
-        print(
-            "🧪 TEST: Manfred News wird gestartet...",
-            flush=True
-        )
-
         erfolg = await sende_manfred_news(
             force=True
         )
@@ -807,9 +969,9 @@ async def test_news(interaction: discord.Interaction):
         if erfolg:
 
             await interaction.followup.send(
-                "📰 **Manfred News erfolgreich getestet!**\n\n"
-                "📢 Die Testmeldung wurde in "
-                "**#Manfred News** gepostet.",
+                "📰 **Manfred News getestet!**\n\n"
+                "📢 Testmeldung wurde in "
+                "**#manfred-news** gepostet.",
                 ephemeral=True
             )
 
@@ -831,8 +993,7 @@ async def test_news(interaction: discord.Interaction):
         )
 
         await interaction.followup.send(
-            f"❌ **Fehler bei Manfred News:**\n"
-            f"```{e}```",
+            f"❌ **Fehler:**\n```{e}```",
             ephemeral=True
         )
 
@@ -870,6 +1031,7 @@ async def manfred_news_scheduler():
             )
 
         # Alle 30 Minuten prüfen
+
         await asyncio.sleep(1800)
         
 # ==========================================
