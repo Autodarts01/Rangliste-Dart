@@ -649,7 +649,6 @@ def ermittle_manfred_news():
         leader = tabelle[0]
 
         leader_name = leader["name"]
-
         leader_punkte = leader["punkte"]
 
         # ==========================================
@@ -670,98 +669,59 @@ def ermittle_manfred_news():
 
         letzter_marker = lese_news_marker()
 
-        # Keine Tabellenänderung
-
+        # Keine Änderung
         if news_id == letzter_marker:
-
             return None
 
         # ==========================================
-        # 🔥 SIEGESSERIE SUCHEN
+        # 🔥 GRÖSSTE SIEGESSERIE ERMITTELN
         # ==========================================
 
-        serien_events = []
+        bester_spieler = None
+        beste_serie = 0
 
         for spieler, serie in serien.items():
 
-            if serie >= 10:
+            if serie > beste_serie:
 
-                serien_events.append(
-                    (
-                        serie,
-                        "🔥",
-                        spieler,
-                        "unglaubliche"
-                    )
-                )
-
-            elif serie >= 5:
-
-                serien_events.append(
-                    (
-                        serie,
-                        "🔥",
-                        spieler,
-                        "starke"
-                    )
-                )
-
-            elif serie >= 3:
-
-                serien_events.append(
-                    (
-                        serie,
-                        "🔥",
-                        spieler,
-                        "aktuelle"
-                    )
-                )
-
-        # Größte Serie zuerst
-
-        serien_events.sort(
-            key=lambda x: x[0],
-            reverse=True
-        )
+                beste_serie = serie
+                bester_spieler = spieler
 
         # ==========================================
         # 🔥 SIEGESSERIE NEWS
         # ==========================================
 
-        if serien_events:
-
-            serie, emoji, spieler, beschreibung = serien_events[0]
+        if beste_serie >= 10:
 
             text = (
-                f"{emoji} **MANFRED NEWS**\n\n"
-                f"🏆 **{spieler}** hat eine "
-                f"{beschreibung} Siegesserie!\n\n"
-                f"🔥 **{serie} Siege in Folge!**\n\n"
-                f"🎯 Punkte: **"
-                f"{next("
-                    "(x['punkte'] for x in tabelle "
-                    "if x['name'] == spieler), 0"
-                )}**\n\n"
+                "🔥 **MANFRED NEWS**\n\n"
+                f"🏆 **{bester_spieler}** ist nicht zu stoppen!\n\n"
+                f"🔥 **{beste_serie} Siege in Folge!**\n\n"
                 "🤖 **Manfred sagt:**\n"
+                "\"STOPPT DEN MANN! 🔥🔥🔥\""
             )
 
-            if serie >= 10:
+        elif beste_serie >= 5:
 
-                text += (
-                    "\"STOPPT DEN MANN! 🔥🔥🔥\""
-                )
+            text = (
+                "🔥 **MANFRED NEWS**\n\n"
+                f"🏆 **{bester_spieler}** "
+                "hat eine starke Serie!\n\n"
+                f"🔥 **{beste_serie} Siege in Folge!**\n\n"
+                "🤖 **Manfred sagt:**\n"
+                "\"Da läuft aber eine Serie! 🎯🔥\""
+            )
 
-            elif serie >= 5:
+        elif beste_serie >= 3:
 
-                text += (
-                    "\"Da läuft aber eine Serie! 🎯🔥\""
-                )
-
-            else:
-
-                text += (
-                    "\"Drei am Stück! Weiter so! 🎯\""
-                )
+            text = (
+                "🔥 **MANFRED NEWS**\n\n"
+                f"🏆 **{bester_spieler}** "
+                "ist aktuell gut unterwegs!\n\n"
+                f"🔥 **{beste_serie} Siege in Folge!**\n\n"
+                "🤖 **Manfred sagt:**\n"
+                "\"Drei am Stück! Weiter so! 🎯\""
+            )
 
         # ==========================================
         # 💯 100 PUNKTE
@@ -785,7 +745,7 @@ def ermittle_manfred_news():
             )
 
         # ==========================================
-        # 🏆 NORMALE TABELLEN NEWS
+        # 📰 NORMALE TABELLEN NEWS
         # ==========================================
 
         else:
