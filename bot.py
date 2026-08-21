@@ -2529,17 +2529,15 @@ async def on_message(message):
     if message.author.bot:
         return
         
-if message.author.bot:
-    return
 
 # ==========================================
 # 🎯 180 TRACKER
 # ==========================================
 
-if (
+    if (
     message.channel.name
     == MANFRED_180_ERGEBNIS_CHANNEL
-):
+    ):
 
     await verarbeite_180(message)
 
