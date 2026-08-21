@@ -3138,8 +3138,8 @@ async def on_message(message):
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 07:00 / 14:00 / 18:00 / 22:00 → Tabelle
 00:00 → Tagesauswertung
-09:00 → Geburtstags-Glückwunsch"""
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+09:00 → Geburtstags-Glückwunsch
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"""
             await message.channel.send(hilfe_admin)
             return
         hilfe_text = """🎯 MANFRED – EUER DART-BOT 🎯
