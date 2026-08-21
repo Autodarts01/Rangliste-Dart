@@ -2049,6 +2049,475 @@ async def on_ready():
 
     
 
+# ==========================================
+# 🎯 MANFRED 180-TRACKER
+# ==========================================
+
+MANFRED_180_ERGEBNIS_CHANNEL = "bullseye-rangliste-ergebnisse"
+MANFRED_180_STATISTIK_CHANNEL = "statistiken"
+
+MANFRED_180_STATS_FILE = "manfred_180_stats.json"
+MANFRED_180_MESSAGE_FILE = "manfred_180_message.txt"
+
+
+# ==========================================
+# 💾 180-STATS LADEN
+# ==========================================
+
+def lade_180_stats():
+
+    try:
+
+        if os.path.exists(MANFRED_180_STATS_FILE):
+
+            with open(
+                MANFRED_180_STATS_FILE,
+                "r",
+                encoding="utf-8"
+            ) as f:
+
+                daten = json.load(f)
+
+                if isinstance(daten, dict):
+                    return daten
+
+    except Exception as e:
+
+        print(
+            f"❌ Fehler beim Laden der 180-Stats: {repr(e)}",
+            flush=True
+        )
+
+    return {}
+
+
+# ==========================================
+# 💾 180-STATS SPEICHERN
+# ==========================================
+
+def speichere_180_stats(stats):
+
+    try:
+
+        with open(
+            MANFRED_180_STATS_FILE,
+            "w",
+            encoding="utf-8"
+        ) as f:
+
+            json.dump(
+                stats,
+                f,
+                ensure_ascii=False,
+                indent=4
+            )
+
+    except Exception as e:
+
+        print(
+            f"❌ Fehler beim Speichern der 180-Stats: {repr(e)}",
+            flush=True
+        )
+
+
+# ==========================================
+# 💾 LETZTE STATISTIK-NACHRICHT
+# ==========================================
+
+def lade_180_message_id():
+
+    try:
+
+        if os.path.exists(MANFRED_180_MESSAGE_FILE):
+
+            with open(
+                MANFRED_180_MESSAGE_FILE,
+                "r",
+                encoding="utf-8"
+            ) as f:
+
+                return f.read().strip()
+
+    except Exception as e:
+
+        print(
+            f"❌ Fehler beim Lesen der 180-Message-ID: "
+            f"{repr(e)}",
+            flush=True
+        )
+
+    return ""
+
+
+def speichere_180_message_id(message_id):
+
+    try:
+
+        with open(
+            MANFRED_180_MESSAGE_FILE,
+            "w",
+            encoding="utf-8"
+        ) as f:
+
+            f.write(str(message_id))
+
+    except Exception as e:
+
+        print(
+            f"❌ Fehler beim Speichern der 180-Message-ID: "
+            f"{repr(e)}",
+            flush=True
+        )
+
+
+# ==========================================
+# 🎯 180 AUS NACHRICHT ERKENNEN
+# ==========================================
+
+def ermittle_180(message):
+
+    try:
+
+        if not message.mentions:
+            return None
+
+        text = message.content.lower()
+
+        if "180" not in text:
+            return None
+
+        spieler = message.mentions[0].display_name
+
+        # @Spieler 3x180
+        match = re.search(
+            r"(\d+)\s*x\s*180\b",
+            text
+        )
+
+        if match:
+
+            anzahl = int(
+                match.group(1)
+            )
+
+        else:
+
+            # @Spieler 180
+            anzahl = 1
+
+        if anzahl <= 0:
+            return None
+
+        return spieler, anzahl
+
+    except Exception as e:
+
+        print(
+            f"❌ Fehler beim Erkennen der 180: {repr(e)}",
+            flush=True
+        )
+
+        return None
+
+
+# ==========================================
+# 📊 180-LISTE ERSTELLEN
+# ==========================================
+
+def erstelle_180_liste(stats):
+
+    text = (
+        "🎯 **ONE HUNDRED AND EIGHTY**\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+    )
+
+    if not stats:
+
+        text += "Noch keine 180 geworfen. 🎯"
+
+        return text
+
+    sortiert = sorted(
+        stats.items(),
+        key=lambda x: x[1],
+        reverse=True
+    )
+
+    emojis = [
+        "🥇",
+        "🥈",
+        "🥉"
+    ]
+
+    for i, (spieler, anzahl) in enumerate(
+        sortiert
+    ):
+
+        if i < 3:
+            platz = emojis[i]
+        else:
+            platz = f"**{i + 1}.**"
+
+        text += (
+            f"{platz} **{spieler}** — "
+            f"**{anzahl}x 180**\n"
+        )
+
+    return text
+
+
+# ==========================================
+# 🗑️ ALTEN STATISTIK-POST LÖSCHEN
+# ==========================================
+
+async def loesche_alten_180_post(channel):
+
+    alte_id = lade_180_message_id()
+
+    if not alte_id:
+        return
+
+    try:
+
+        alte_message = await channel.fetch_message(
+            int(alte_id)
+        )
+
+        await alte_message.delete()
+
+        print(
+            "🗑️ Alter 180-Post gelöscht.",
+            flush=True
+        )
+
+    except discord.NotFound:
+
+        pass
+
+    except discord.Forbidden:
+
+        print(
+            "❌ Keine Berechtigung zum Löschen "
+            "des alten 180-Posts.",
+            flush=True
+        )
+
+    except Exception as e:
+
+        print(
+            f"❌ Fehler beim Löschen des alten 180-Posts: "
+            f"{repr(e)}",
+            flush=True
+        )
+
+
+# ==========================================
+# 📢 STATISTIK AKTUALISIEREN
+# ==========================================
+
+async def aktualisiere_180_statistik():
+
+    try:
+
+        channel = discord.utils.get(
+            client.get_all_channels(),
+            name=MANFRED_180_STATISTIK_CHANNEL
+        )
+
+        if channel is None:
+
+            print(
+                "❌ Kanal #statistiken nicht gefunden.",
+                flush=True
+            )
+
+            return False
+
+        # Alten Post löschen
+        await loesche_alten_180_post(
+            channel
+        )
+
+        stats = lade_180_stats()
+
+        text = erstelle_180_liste(
+            stats
+        )
+
+        # Neuen Post erstellen
+        message = await channel.send(
+            text
+        )
+
+        # ID speichern
+        speichere_180_message_id(
+            message.id
+        )
+
+        print(
+            "🎯 180-Liste in #statistiken aktualisiert.",
+            flush=True
+        )
+
+        return True
+
+    except Exception as e:
+
+        print(
+            f"❌ Fehler bei der 180-Statistik: "
+            f"{repr(e)}",
+            flush=True
+        )
+
+        return False
+
+
+# ==========================================
+# 🎯 180 VERARBEITEN
+# ==========================================
+
+async def verarbeite_180(message):
+
+    try:
+
+        ergebnis = ermittle_180(
+            message
+        )
+
+        if not ergebnis:
+            return False
+
+        spieler, anzahl = ergebnis
+
+        stats = lade_180_stats()
+
+        if spieler not in stats:
+            stats[spieler] = 0
+
+        stats[spieler] += anzahl
+
+        speichere_180_stats(
+            stats
+        )
+
+        print(
+            f"🎯 180 erkannt: {spieler} "
+            f"+{anzahl} | Gesamt: {stats[spieler]}",
+            flush=True
+        )
+
+        await aktualisiere_180_statistik()
+
+        return True
+
+    except Exception as e:
+
+        print(
+            f"❌ Fehler bei verarbeite_180: {repr(e)}",
+            flush=True
+        )
+
+        return False
+
+
+# ==========================================
+# 🔄 /180-RESET
+# ==========================================
+
+@tree.command(
+    name="180-reset",
+    description="Setzt die 180-Statistik auf 0"
+)
+async def reset_180(
+    interaction: discord.Interaction
+):
+
+    if not any(
+        role.id in ADMIN_ROLE_IDS
+        for role in interaction.user.roles
+    ):
+
+        await interaction.response.send_message(
+            "❌ Keine Berechtigung.",
+            ephemeral=True
+        )
+
+        return
+
+    await interaction.response.defer(
+        ephemeral=True
+    )
+
+    try:
+
+        # Stats komplett zurücksetzen
+        speichere_180_stats({})
+
+        channel = discord.utils.get(
+            client.get_all_channels(),
+            name=MANFRED_180_STATISTIK_CHANNEL
+        )
+
+        if channel:
+
+            alte_id = lade_180_message_id()
+
+            if alte_id:
+
+                try:
+
+                    alte_message = (
+                        await channel.fetch_message(
+                            int(alte_id)
+                        )
+                    )
+
+                    await alte_message.delete()
+
+                except discord.NotFound:
+
+                    pass
+
+                except discord.Forbidden:
+
+                    print(
+                        "❌ Keine Berechtigung zum Löschen "
+                        "des 180-Posts.",
+                        flush=True
+                    )
+
+        # Gespeicherte Message-ID löschen
+        if os.path.exists(
+            MANFRED_180_MESSAGE_FILE
+        ):
+
+            os.remove(
+                MANFRED_180_MESSAGE_FILE
+            )
+
+        await interaction.followup.send(
+            "🎯 **180-Statistik wurde auf 0 gesetzt.**\n\n"
+            "Die nächste 180 erstellt wieder "
+            "die neue Liste in #statistiken.",
+            ephemeral=True
+        )
+
+        print(
+            "🔄 180-Statistik wurde zurückgesetzt.",
+            flush=True
+        )
+
+    except Exception as e:
+
+        print(
+            f"❌ Fehler bei /180-reset: {repr(e)}",
+            flush=True
+        )
+
+        await interaction.followup.send(
+            f"❌ **Fehler:**\n```{e}```",
+            ephemeral=True
+        )
 
 # =========================
 # MESSAGE HANDLER
@@ -2059,6 +2528,22 @@ async def on_message(message):
 
     if message.author.bot:
         return
+        
+if message.author.bot:
+    return
+
+# ==========================================
+# 🎯 180 TRACKER
+# ==========================================
+
+if (
+    message.channel.name
+    == MANFRED_180_ERGEBNIS_CHANNEL
+):
+
+    await verarbeite_180(message)
+
+    return
 
     # Stats-Commands auch im Stats-Channel erlauben
     is_stats_channel = message.channel.id == STATS_CHANNEL_ID
@@ -2143,17 +2628,6 @@ async def on_message(message):
         if not is_stats_channel:
             return
         los_sprueche = [
-            # Lanzi_90 (10)
-            "Lanzi_90 ist so schlecht, seine Pfeile haben einen Schutzantrag gestellt 😂",
-            "Lanzi_90 wirft Darts wie andere Leute einparken — ueberall ausser wo es hingehoert 🚗",
-            "Wenn Lanzi_90 wirft, verlaesst die Dartscheibe freiwillig die Wand 🏃",
-            "Lanzi_90s Trefferquote ist so niedrig, die wird mit einem Mikroskop gemessen 🔬",
-            "Lanzi_90 spielt seit Jahren und wird trotzdem von Anfaengern mitleidig angeschaut 😬",
-            "Lanzi_90 ist der einzige Mensch der beim Aufwaermen verliert 🤦",
-            "Die Wand hinter der Scheibe hat mehr Treffer als Lanzi_90s Statistik 🧱",
-            "Lanzi_90 denkt er spielt Dart — die Scheibe denkt er spielt Verstecken 🙈",
-            "Lanzi_90 hat den Rekord fuer die meisten Pfeile die nirgendwo ankamen 🌬️",
-            "Lanzi_90 und Talent beim Dart — eine Geschichte die noch nicht angefangen hat 📖",
             # Allgemein (10)
             "Irgendwer hier wirft Pfeile als ob er blind verbunden ist... und trotzdem besser als Lanzi_90 🎯",
             "Diese Runde hat mehr Fehlwuerfe als ein blinder Oktopus mit Parkinson 🐙",
