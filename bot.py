@@ -2528,22 +2528,21 @@ async def on_message(message):
 
     if message.author.bot:
         return
-        
 
-# ==========================================
-# 🎯 180 TRACKER
-# ==========================================
+    # ==========================================
+    # 🎯 MANFRED 180-TRACKER
+    # ==========================================
 
-    if (
-    message.channel.name
-    == MANFRED_180_ERGEBNIS_CHANNEL
-    ):
+    if message.channel.name == MANFRED_180_ERGEBNIS_CHANNEL:
 
-    await verarbeite_180(message)
+        await verarbeite_180(message)
 
-    return
+        return
 
+    # =========================
     # Stats-Commands auch im Stats-Channel erlauben
+    # =========================
+
     is_stats_channel = message.channel.id == STATS_CHANNEL_ID
     is_main_channel = message.channel.name == CHANNEL_NAME
 
@@ -2552,12 +2551,21 @@ async def on_message(message):
     is_abwesenheit = message.channel.id == ABWESENHEIT_CHANNEL_ID
     is_geburtstage = message.channel.id == GEBURTSTAGE_CHANNEL_ID
 
-    if not is_main_channel and not is_stats_channel and not is_spielabsprachen and not is_spieler_info and not is_abwesenheit and not is_geburtstage:
+    if (
+        not is_main_channel
+        and not is_stats_channel
+        and not is_spielabsprachen
+        and not is_spieler_info
+        and not is_abwesenheit
+        and not is_geburtstage
+    ):
         return
 
     reset_daily()
 
     content = message.content
+
+    # Ab hier dein bisheriger Code
 
     # =========================
     # !stats Spieler
