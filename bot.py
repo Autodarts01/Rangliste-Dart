@@ -3108,7 +3108,15 @@ async def on_message(message):
 🔧 ADMIN (#bullseye-rangliste-ergebnisse)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 !add @Spieler +1/-1     → Tageslimit anpassen
-!undo                   → Letzten Eintrag loeschen
+!undo                   → Letzten Eintrag löschen
+/test-monatsreset       → Monatsreset testen,
+                           Rangliste wird nicht verändert
+@Spieler 1x180          → 180 wird erkannt und
+                           automatisch in #statistiken gepostet
+                         → 3x 180 löschen
+/180-reset              → Alle 180-Statistiken
+                           auf 0 setzen
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 👥 SPIELER-VERWALTUNG
