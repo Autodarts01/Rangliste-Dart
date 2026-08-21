@@ -477,239 +477,119 @@ GUILD_OBJECT = discord.Object(id=GUILD_ID)
 # ==========================================
 # 📰 MANFRED NEWS
 # ==========================================
-
 MANFRED_NEWS_CHANNEL = "manfred-news"
-
 MANFRED_NEWS_MARKER = "Manfred_News_marker.txt"
 MANFRED_NEWS_LAST_TEXT = "Manfred_News_last_text.txt"
-
-
 # ==========================================
 # 💾 MARKER LESEN
 # ==========================================
-
 def lese_news_marker():
-
     try:
-
         if os.path.exists(MANFRED_NEWS_MARKER):
-
             with open(
                 MANFRED_NEWS_MARKER,
                 "r",
                 encoding="utf-8"
             ) as f:
-
                 return f.read().strip()
-
     except Exception as e:
-
         print(
-            f"❌ Fehler beim Lesen des News-Markers: "
-            f"{repr(e)}",
+            f"❌ Fehler beim Lesen des News-Markers: {repr(e)}",
             flush=True
         )
-
     return ""
-
-
 # ==========================================
 # 💾 MARKER SPEICHERN
 # ==========================================
-
 def speichere_news_marker(wert):
-
     try:
-
         with open(
             MANFRED_NEWS_MARKER,
             "w",
             encoding="utf-8"
         ) as f:
-
             f.write(str(wert))
-
     except Exception as e:
-
         print(
-            f"❌ Fehler beim Speichern des News-Markers: "
-            f"{repr(e)}",
+            f"❌ Fehler beim Speichern des News-Markers: {repr(e)}",
             flush=True
         )
-
-
-# ==========================================
-# 📝 LETZTEN NEWS-TEXT LESEN
-# ==========================================
-
-def lese_letzte_news():
-
-    try:
-
-        if os.path.exists(MANFRED_NEWS_LAST_TEXT):
-
-            with open(
-                MANFRED_NEWS_LAST_TEXT,
-                "r",
-                encoding="utf-8"
-            ) as f:
-
-                return f.read()
-
-    except Exception as e:
-
-        print(
-            f"❌ Fehler beim Lesen der letzten Manfred News: "
-            f"{repr(e)}",
-            flush=True
-        )
-
-    return ""
-
-
-# ==========================================
-# 📝 LETZTEN NEWS-TEXT SPEICHERN
-# ==========================================
-
-def speichere_letzte_news(text):
-
-    try:
-
-        with open(
-            MANFRED_NEWS_LAST_TEXT,
-            "w",
-            encoding="utf-8"
-        ) as f:
-
-            f.write(text)
-
-    except Exception as e:
-
-        print(
-            f"❌ Fehler beim Speichern der letzten Manfred News: "
-            f"{repr(e)}",
-            flush=True
-        )
-
-
 # ==========================================
 # 🔥 SIEGESSERIEN
 # ==========================================
-
 def ermittle_siegesserien():
-
     serien = {}
-
     try:
-
         rows = sheet.get_all_values()
-
+        # Spieler vorbereiten
         for row in rows:
-
             if len(row) < 7:
                 continue
-
             p1 = row[0].strip()
             p2 = row[1].strip()
-
             if not p1 or not p2:
                 continue
-
             if p1.lower() == "spieler a":
                 continue
-
             if p1 not in serien:
                 serien[p1] = 0
-
             if p2 not in serien:
                 serien[p2] = 0
-
-        # ==========================================
-        # SPIELE IN REIHENFOLGE AUSWERTEN
-        # ==========================================
-
+        # Spiele in Reihenfolge auswerten
         for row in rows:
-
             if len(row) < 7:
                 continue
-
             p1 = row[0].strip()
             p2 = row[1].strip()
             winner = row[6].strip()
-
             if not p1 or not p2:
                 continue
-
             if p1.lower() == "spieler a":
                 continue
-
             if not winner:
                 continue
-
             # Unentschieden beendet Serie
-
             if winner.lower() == "unentschieden":
-
                 serien[p1] = 0
                 serien[p2] = 0
-
                 continue
-
             # Spieler A gewinnt
-
             if normalize(winner) == normalize(p1):
-
                 serien[p1] = serien.get(p1, 0) + 1
                 serien[p2] = 0
-
             # Spieler B gewinnt
-
             elif normalize(winner) == normalize(p2):
-
                 serien[p2] = serien.get(p2, 0) + 1
                 serien[p1] = 0
-
         return serien
-
     except Exception as e:
-
         print(
-            f"❌ Fehler bei Siegesserien: "
-            f"{repr(e)}",
+            f"❌ Fehler bei Siegesserien: {repr(e)}",
             flush=True
         )
-
         return {}
-
-
 # ==========================================
 # 📰 MANFRED NEWS ERMITTELN
 # ==========================================
-
 def ermittle_manfred_news():
-
     try:
-
         tabelle = get_tabelle()
-
         if not tabelle:
-            return None
-
+            print(
+                "⚠️ Manfred News: Keine Tabelle vorhanden.",
+                flush=True
+            )
+            return None, None
         serien = ermittle_siegesserien()
-
         # ==========================================
         # 🏆 TABELLENFÜHRER
         # ==========================================
-
         leader = tabelle[0]
-
         leader_name = leader["name"]
         leader_punkte = leader["punkte"]
-
         # ==========================================
-        # 📰 TABELLEN-ID
+        # 📰 KOMPLETTE TABELLEN-ID
         # ==========================================
-
         news_id = "|".join(
             f"{spieler['name']}:"
             f"{spieler['spiele']}:"
@@ -721,43 +601,43 @@ def ermittle_manfred_news():
             f"{spieler['punkte']}"
             for spieler in tabelle
         )
-
         letzter_marker = lese_news_marker()
-
+        print(
+            f"📰 NEWS DEBUG | "
+            f"Aktuelle ID: {news_id}",
+            flush=True
+        )
+        print(
+            f"📰 NEWS DEBUG | "
+            f"Gespeicherter Marker: {letzter_marker}",
+            flush=True
+        )
         # ==========================================
         # 🛑 KEINE TABELLENÄNDERUNG
         # ==========================================
-
         if news_id == letzter_marker:
-
             print(
-                "ℹ️ Keine Tabellenänderung - "
-                "keine neue Manfred News.",
+                "ℹ️ Manfred News: Keine Tabellenänderung.",
                 flush=True
             )
-
-            return None
-
+            return None, None
+        print(
+            "✅ Manfred News: Tabellenänderung erkannt!",
+            flush=True
+        )
         # ==========================================
         # 🔥 GRÖSSTE SIEGESSERIE
         # ==========================================
-
         bester_spieler = None
         beste_serie = 0
-
         for spieler, serie in serien.items():
-
             if serie > beste_serie:
-
                 beste_serie = serie
                 bester_spieler = spieler
-
         # ==========================================
-        # 🔥 SIEGESSERIE
+        # 🔥 NEWS AUSWÄHLEN
         # ==========================================
-
         if beste_serie >= 10:
-
             text = (
                 "🔥 **MANFRED NEWS**\n\n"
                 f"🏆 **{bester_spieler}** ist nicht zu stoppen!\n\n"
@@ -765,35 +645,23 @@ def ermittle_manfred_news():
                 "🤖 **Manfred sagt:**\n"
                 "\"STOPPT DEN MANN! 🔥🔥🔥\""
             )
-
         elif beste_serie >= 5:
-
             text = (
                 "🔥 **MANFRED NEWS**\n\n"
-                f"🏆 **{bester_spieler}** "
-                "hat eine starke Serie!\n\n"
+                f"🏆 **{bester_spieler}** hat eine starke Serie!\n\n"
                 f"🔥 **{beste_serie} Siege in Folge!**\n\n"
                 "🤖 **Manfred sagt:**\n"
                 "\"Da läuft aber eine Serie! 🎯🔥\""
             )
-
         elif beste_serie >= 3:
-
             text = (
                 "🔥 **MANFRED NEWS**\n\n"
-                f"🏆 **{bester_spieler}** "
-                "ist aktuell gut unterwegs!\n\n"
+                f"🏆 **{bester_spieler}** ist aktuell gut unterwegs!\n\n"
                 f"🔥 **{beste_serie} Siege in Folge!**\n\n"
                 "🤖 **Manfred sagt:**\n"
                 "\"Drei am Stück! Weiter so! 🎯\""
             )
-
-        # ==========================================
-        # 💯 100 PUNKTE
-        # ==========================================
-
         elif leader_punkte >= 100:
-
             text = (
                 "💯 **MANFRED NEWS**\n\n"
                 f"🏆 **{leader_name}** hat die "
@@ -807,13 +675,7 @@ def ermittle_manfred_news():
                 "🤖 **Manfred sagt:**\n"
                 "\"Das sieht nach Meisterschaft aus! 🎯\""
             )
-
-        # ==========================================
-        # 📰 NORMALE NEWS
-        # ==========================================
-
         else:
-
             text = (
                 "📰 **MANFRED NEWS**\n\n"
                 f"🏆 **{leader_name}** führt aktuell "
@@ -827,161 +689,84 @@ def ermittle_manfred_news():
                 "🤖 **Manfred:**\n"
                 "\"Die Tabelle bewegt sich! 👀🎯\""
             )
-
-        # ==========================================
-        # 🛑 EXAKTEN TEXT VERGLEICHEN
-        # ==========================================
-
-        letzte_news = lese_letzte_news()
-
-        if letzte_news.strip() == text.strip():
-
-            print(
-                "🛑 Exakt gleiche Manfred News "
-                "wird nicht erneut gesendet.",
-                flush=True
-            )
-
-            # Marker trotzdem aktualisieren
-
-            speichere_news_marker(news_id)
-
-            return None
-
-        # ==========================================
-        # 💾 MARKER + NEWS SPEICHERN
-        # ==========================================
-
-        speichere_news_marker(news_id)
-
-        speichere_letzte_news(text)
-
-        return text
-
+        # WICHTIG:
+        # Marker hier NOCH NICHT speichern.
+        # Erst nach erfolgreichem Discord-Versand.
+        return text, news_id
     except Exception as e:
-
         print(
-            f"❌ Fehler bei Manfred News: "
-            f"{repr(e)}",
+            f"❌ Fehler bei Manfred News: {repr(e)}",
             flush=True
         )
-
-        return None
-
-
+        return None, None
 # ==========================================
 # 📢 NEWS SENDEN
 # ==========================================
-
 async def sende_manfred_news():
-
     try:
-
         channel = discord.utils.get(
             client.get_all_channels(),
             name=MANFRED_NEWS_CHANNEL
         )
-
         if channel is None:
-
             print(
-                f"❌ Kanal #{MANFRED_NEWS_CHANNEL} "
-                "nicht gefunden.",
+                f"❌ Kanal #{MANFRED_NEWS_CHANNEL} nicht gefunden.",
                 flush=True
             )
-
             return False
-
-        text = ermittle_manfred_news()
-
-        if not text:
-
+        # ==========================================
+        # NEWS ERMITTELN
+        # ==========================================
+        text, news_id = ermittle_manfred_news()
+        if not text or not news_id:
             print(
                 "ℹ️ Keine neue Manfred News.",
                 flush=True
             )
-
             return False
-
         # ==========================================
-        # 🛑 SICHERHEITSPRÜFUNG
+        # 📢 NEWS SENDEN
         # ==========================================
-
-        letzte_news = lese_letzte_news()
-
-        if letzte_news.strip() == text.strip():
-
-            print(
-                "🛑 Doppelte News verhindert.",
-                flush=True
-            )
-
-            return False
-
-        # ==========================================
-        # 📢 SENDEN
-        # ==========================================
-
         await channel.send(text)
-
-        # Erst nach erfolgreichem Senden speichern
-
-        speichere_letzte_news(text)
-
+        # ==========================================
+        # 💾 MARKER ERST NACH ERFOLGREICHEM SENDEN
+        # ==========================================
+        speichere_news_marker(news_id)
         print(
             "📰 Manfred News wurde veröffentlicht.",
             flush=True
         )
-
         return True
-
     except Exception as e:
-
         print(
-            f"❌ Fehler beim Senden der Manfred News: "
-            f"{repr(e)}",
+            f"❌ Fehler beim Senden der Manfred News: {repr(e)}",
             flush=True
         )
-
         return False
-
-
 # ==========================================
 # ⏰ MANFRED NEWS SCHEDULER
 # ==========================================
-
 async def manfred_news_scheduler():
-
     await client.wait_until_ready()
-
     print(
         "📰 Manfred-News-Scheduler gestartet.",
         flush=True
     )
-
     while not client.is_closed():
-
         try:
-
             print(
                 "📰 Prüfe Manfred News...",
                 flush=True
             )
-
             await sende_manfred_news()
-
         except Exception as e:
-
             print(
                 f"❌ Manfred-News-Scheduler Fehler: "
                 f"{repr(e)}",
                 flush=True
             )
-
         # Alle 30 Minuten prüfen
-
         await asyncio.sleep(1800)
-        
 # ==========================================
 # AUTOMATISCHER MONATSRESET
 # ==========================================
