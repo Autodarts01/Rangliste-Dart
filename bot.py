@@ -3152,7 +3152,6 @@ async def on_message(message):
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Schreibt einfach so:
 @Spieler1 vs @Spieler2 3:1
-
 ⚠️ WICHTIG:
 - Beide Spieler MÜSSEN mit @ markiert werden
 - Jeder hat nur 5 Spiele pro Tag
@@ -3164,19 +3163,15 @@ Schreibt einfach so:
 !ich
 → Zeigt deine eigenen Stats (Siege, Niederlagen, Win-Rate)
    Einfach tippen — der Bot erkennt dich automatisch!
-
 !ziel
 → Zeigt wie viele Spiele/Siege du noch bis zur nächsten
    Auszeichnung brauchst 🏆
-
 !nächster
 → Zeigt wer heute noch Spiele übrig hat
    Perfekt um schnell einen Gegner zu finden! 🎯
-
 !quote
 → Zufälliger Motivationsspruch wenn du einen
    aufmunternden Push brauchst 💪
-
 !h2h @Spieler
 → Direktvergleich zwischen dir und @Spieler,
    zählt auch archivierte Saisons mit! ⚔️
@@ -3185,13 +3180,11 @@ Schreibt einfach so:
 🏅 MEILENSTEINE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Manfred gratuliert automatisch wenn ihr erreicht:
-
 🎮 Spiele:
 - 10 Spiele  → 🚀 Anfang einer Legende
 - 25 Spiele  → 🎯 Die Scheibe hat Respekt
 - 50 Spiele  → 💪 Nicht mehr aufzuhalten
 - 100 Spiele → 👑 Absolute Legende
-
 🏆 Siege:
 - 10 Siege  → 🥉 Bronze
 - 25 Siege  → 🥈 Silber
