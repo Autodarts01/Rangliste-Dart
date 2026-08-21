@@ -2530,14 +2530,11 @@ async def on_message(message):
         return
 
     # ==========================================
-    # 🎯 MANFRED 180-TRACKER
+    # 🎯 MANFRED 180 TRACKER
     # ==========================================
 
-    if message.channel.name == MANFRED_180_ERGEBNIS_CHANNEL:
-
-        await verarbeite_180(message)
-
-        return
+    MANFRED_180_ERGEBNIS_CHANNEL = "bullseye-rangliste-ergebnisse"
+    MANFRED_180_STATISTIK_CHANNEL = "statistiken"
 
     # =========================
     # Stats-Commands auch im Stats-Channel erlauben
