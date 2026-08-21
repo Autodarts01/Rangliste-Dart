@@ -2740,7 +2740,7 @@ Wendet euch an die Admins 🙂"""
         await message.channel.send(
             "Ohne @ bin ich blind. Ich bin ein Bot, kein Hellseher 🔮\n"
             "⚠️ **Bitte Spieler mit @ markieren!**\n"
-            "Beispiel: `@Red_Apple17 vs @Lanzi_90 3:2`"
+            "Beispiel: `@Sam The Gambler vs @squishy_180 3:2`"
         )
         return
 
