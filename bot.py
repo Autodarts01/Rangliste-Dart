@@ -2525,29 +2525,23 @@ async def reset_180(
 @client.event
 async def on_message(message):
     global lanzi_insult_index
-
     if message.author.bot:
         return
-
     # ==========================================
     # 🎯 MANFRED 180 TRACKER
     # ==========================================
-
-    MANFRED_180_ERGEBNIS_CHANNEL = "bullseye-rangliste-ergebnisse"
-    MANFRED_180_STATISTIK_CHANNEL = "statistiken"
-
+    if message.channel.name == MANFRED_180_ERGEBNIS_CHANNEL:
+        await verarbeite_180(message)
+        return
     # =========================
     # Stats-Commands auch im Stats-Channel erlauben
     # =========================
-
     is_stats_channel = message.channel.id == STATS_CHANNEL_ID
     is_main_channel = message.channel.name == CHANNEL_NAME
-
     is_spielabsprachen = message.channel.id == LOG_CHANNEL_ID
     is_spieler_info = message.channel.id == SPIELER_INFO_CHANNEL_ID
     is_abwesenheit = message.channel.id == ABWESENHEIT_CHANNEL_ID
     is_geburtstage = message.channel.id == GEBURTSTAGE_CHANNEL_ID
-
     if (
         not is_main_channel
         and not is_stats_channel
@@ -2557,13 +2551,8 @@ async def on_message(message):
         and not is_geburtstage
     ):
         return
-
     reset_daily()
-
     content = message.content
-
-    # Ab hier dein bisheriger Code
-
     # =========================
     # !stats Spieler
     # =========================
