@@ -3421,6 +3421,11 @@ Wendet euch an die Admins 🙂"""
         return
 
     p1, p2, s1, s2 = result
+    
+    print(
+    f"🧪 MATCH ERKANNT: {p1} vs {p2} {s1}:{s2}",
+    flush=True
+    )
     print(
         f"🧪 MATCH PARSE OK: {p1} vs {p2} | {s1}:{s2}",
         flush=True
