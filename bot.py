@@ -3023,16 +3023,16 @@ async def on_message(message):
         return
         
     # =========================
-# USER COMMANDS
-# =========================
+    # USER COMMANDS
+    # =========================
 
-print("🚨 VOR HILFE BLOCK", flush=True)
+    print("🚨 VOR HILFE BLOCK", flush=True)
 
-if content.lower().startswith("!hilfe"):
+    if content.lower().startswith("!hilfe"):
 
-    # !hilfe NUR im Statistik-Channel
-    if not is_stats_channel:
-        return
+        # !hilfe NUR im Statistik-Channel
+        if not is_stats_channel:
+            return
 
     print("🚨 HILFE BLOCK ERKANNT", flush=True)
 
