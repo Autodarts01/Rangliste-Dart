@@ -2377,6 +2377,25 @@ async def on_message(message):
         flush=True
     )
     print("🧪 VOR CHANNEL PRÜFUNG", flush=True)
+    print("🧪 TEST 1", flush=True)
+
+    is_stats_channel = message.channel.id == STATS_CHANNEL_ID
+    print("🧪 TEST 2", flush=True)
+
+    is_main_channel = message.channel.name == CHANNEL_NAME
+    print("🧪 TEST 3", flush=True)
+
+    is_spielabsprachen = message.channel.id == LOG_CHANNEL_ID
+    print("🧪 TEST 4", flush=True)
+
+    is_spieler_info = message.channel.id == SPIELER_INFO_CHANNEL_ID
+    print("🧪 TEST 5", flush=True)
+
+    is_abwesenheit = message.channel.id == ABWESENHEIT_CHANNEL_ID
+    print("🧪 TEST 6", flush=True)
+
+    is_geburtstage = message.channel.id == GEBURTSTAGE_CHANNEL_ID
+    print("🧪 TEST 7", flush=True)
     # ==========================================
     # 🎯 MANFRED 180 TRACKER
     # ==========================================
