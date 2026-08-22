@@ -3202,7 +3202,7 @@ async def on_message(message):
         return
 
 
-    # =========================
+        # =========================
     # !ziel
     # =========================
 
@@ -3240,7 +3240,7 @@ async def on_message(message):
                     naechstes_spiel_ziel = m
                     break
 
-                    if naechstes_spiel_ziel:
+            if naechstes_spiel_ziel:
                 msg += (
                     f"🎮 Spiele: noch **"
                     f"{naechstes_spiel_ziel - s['spiele']}** "
@@ -3269,52 +3269,52 @@ async def on_message(message):
             else:
                 msg += "🏆 Siege: Alle Meilensteine erreicht! 👑\n"
 
-        # =========================
-        # Aktueller Rang
-        # =========================
+            # =========================
+            # Aktueller Rang
+            # =========================
 
-        tabelle = get_tabelle()
-        mein_rang = None
-        meine_punkte = 0
+            tabelle = get_tabelle()
+            mein_rang = None
+            meine_punkte = 0
 
-        for i, p in enumerate(tabelle):
-            if normalize(p["name"]) == normalize(spieler):
-                mein_rang = i + 1
-                meine_punkte = p["punkte"]
-                break
+            for i, p in enumerate(tabelle):
+                if normalize(p["name"]) == normalize(spieler):
+                    mein_rang = i + 1
+                    meine_punkte = p["punkte"]
+                    break
 
-        if mein_rang:
-            msg += f"\n📊 Aktueller Rang: **{mein_rang}**\n"
+            if mein_rang:
+                msg += f"\n📊 Aktueller Rang: **{mein_rang}**\n"
 
-            if mein_rang > 1:
-                vorheriger = tabelle[mein_rang - 2]
-                punkte_diff = vorheriger["punkte"] - meine_punkte
+                if mein_rang > 1:
+                    vorheriger = tabelle[mein_rang - 2]
+                    punkte_diff = vorheriger["punkte"] - meine_punkte
 
-                if punkte_diff == 0:
-                    msg += (
-                        f"🔝 Gleich viele Punkte wie "
-                        f"**{vorheriger['name']}** "
-                        f"(Rang {mein_rang - 1}) - "
-                        f"Leg-Differenz entscheidet!\n"
-                    )
+                    if punkte_diff == 0:
+                        msg += (
+                            f"🔝 Gleich viele Punkte wie "
+                            f"**{vorheriger['name']}** "
+                            f"(Rang {mein_rang - 1}) - "
+                            f"Leg-Differenz entscheidet!\n"
+                        )
+                    else:
+                        msg += (
+                            f"🔝 Noch **{punkte_diff} Punkte** "
+                            f"bis Rang {mein_rang - 1} "
+                            f"(**{vorheriger['name']}**)\n"
+                        )
                 else:
-                    msg += (
-                        f"🔝 Noch **{punkte_diff} Punkte** "
-                        f"bis Rang {mein_rang - 1} "
-                        f"(**{vorheriger['name']}**)\n"
-                    )
-            else:
-                msg += "👑 Du bist Tabellenführer!\n"
+                    msg += "👑 Du bist Tabellenführer!\n"
 
-        await message.channel.send(msg)
+            await message.channel.send(msg)
 
-    except Exception as e:
-        print("❌ ZIEL ERROR:", repr(e), flush=True)
-        await message.channel.send(
-            f"❌ Fehler: `{e}`"
-        )
+        except Exception as e:
+            print("❌ ZIEL ERROR:", repr(e), flush=True)
+            await message.channel.send(
+                f"❌ Fehler: `{e}`"
+            )
 
-    return
+        return
 
     # =========================
     # !nächster / !naechster
