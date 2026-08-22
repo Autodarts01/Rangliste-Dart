@@ -2372,6 +2372,10 @@ async def on_message(message):
     global lanzi_insult_index
     if message.author.bot:
         return
+    print(
+        f"🧪 NACH BOT CHECK: {message.channel.name}",
+        flush=True
+    )
     # ==========================================
     # 🎯 MANFRED 180 TRACKER
     # ==========================================
