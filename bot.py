@@ -3577,21 +3577,32 @@ async def on_message(message):
         return
     print("🧪 GEBURTSTAG BLOCK ÜBERSPRUNGEN", flush=True)
 
-    # Ab hier nur im Hauptchannel
+    # =========================
+    # AB HIER NUR IM HAUPTCHANNEL
+    # =========================
+
     print(
-    f"🧪 CHANNEL CHECK: "
-    f"name={message.channel.name} | "
-    f"is_main_channel={is_main_channel} | "
-    f"CHANNEL_NAME={CHANNEL_NAME}",
-    flush=True
+        f"🧪 CHANNEL CHECK: "
+        f"name={message.channel.name} | "
+        f"is_main_channel={is_main_channel} | "
+        f"CHANNEL_NAME={CHANNEL_NAME}",
+        flush=True
     )
+
     if not is_main_channel:
         return
+
+    print("🟢 TEST 10 ÜBERSTANDEN – MATCH PARSE SOLLTE JETZT KOMMEN", flush=True)
 
     # =========================
     # ADMIN COMMAND !add
     # =========================
+
+    print("🚨 TEST 11 VOR ADMIN ADD", flush=True)
+
     if content.lower().startswith("!add"):
+        print("🚨 TEST 12 ADD ERKANNT", flush=True)
+
         if not is_admin(message.author):
             await message.channel.send("⛔ Nur Admins dürfen das.")
             return
@@ -3604,10 +3615,16 @@ async def on_message(message):
             player = parts[1] if len(parts) > 1 else None
 
         if not player:
-            await message.channel.send("❌ Nutzung: !add Spieler +1 oder -1")
+            await message.channel.send(
+                "❌ Nutzung: `!add Spieler +1` oder `!add Spieler -1`"
+            )
             return
 
-        change = int(parts[2]) if len(parts) > 2 else 1
+        try:
+            change = int(parts[2]) if len(parts) > 2 else 1
+        except ValueError:
+            await message.channel.send("❌ Die Änderung muss eine Zahl sein, z.B. `+1` oder `-1`.")
+            return
 
         match_count[normalize(player)] += change
 
@@ -3619,15 +3636,14 @@ async def on_message(message):
             f"🎮 Restspiele: {remaining(player)}"
         )
         return
-        
-    print("🧪 TEST 15 VOR MATCH PARSE", flush=True)
-    print("🧪 TEST C: MATCH PARSER ERREICHT", flush=True)
-    print("🚨 TEST VOR MATCH PARSE", flush=True)
-    print("🧪 TEST B1", flush=True)
-    print("🧪 TEST B2 VOR MATCH PARSE", flush=True)
+
+    print("🚨 TEST 13 ADMIN BLOCK ÜBERSTANDEN", flush=True)
+
     # =========================
     # MATCH PARSE
     # =========================
+
+    print("🚨 TEST 14 VOR MATCH PARSE", flush=True)
     # Prüfen ob beide Spieler als @ markiert wurden
     if len(message.mentions) < 2:
         await message.channel.send(
@@ -3664,6 +3680,10 @@ async def on_message(message):
     )
     s1 = int(s1)
     s2 = int(s2)
+    print(
+        f"🟢 TEST 17 SCORE OK: {s1}:{s2}",
+        flush=True
+    )
 
     # =========================
     # GLEICHER SPIELER CHECK
