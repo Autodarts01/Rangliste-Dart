@@ -2993,12 +2993,30 @@ async def on_message(message):
     # =========================
     # USER COMMANDS (nur in Spielabsprachen)
     # =========================
+
+    print("🚨 VOR HILFE BLOCK", flush=True)
+
     if content.lower().startswith("!hilfe"):
         if not is_stats_channel and not (message.channel.id == SPIELER_INFO_CHANNEL_ID):
             return
 
+        print("🚨 HILFE BLOCK ERKANNT", flush=True)
+
         if is_stats_channel:
             hilfe_admin = """🎯 MANFRED - ALLE KOMMANDOS
+
+    ...
+    """
+            await message.channel.send(hilfe_admin)
+            return
+
+        hilfe_text = """🎯 MANFRED – EUER DART-BOT 🎯
+    ...
+    """
+        await message.channel.send(hilfe_text)
+        return
+
+    print("🚨 NACH HILFE BLOCK", flush=True)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 👥 USER KOMMANDOS (#rangliste-spieler-info)
