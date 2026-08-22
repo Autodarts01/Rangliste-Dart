@@ -2362,6 +2362,13 @@ async def reset_180(
 # =========================
 @client.event
 async def on_message(message):
+    print(
+        f"🧪 ON_MESSAGE START: author={message.author} | "
+        f"bot={message.author.bot} | "
+        f"channel={message.channel.name} | "
+        f"content={message.content}",
+        flush=True
+    )
     global lanzi_insult_index
     if message.author.bot:
         return
