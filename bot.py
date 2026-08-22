@@ -3516,23 +3516,29 @@ Wendet euch an die Admins 🙂"""
     # Tages-Tracking
     today_matches.append({"p1": p1, "p2": p2, "winner": winner})
     
-    # =========================
-    # MEILENSTEIN CHECK
-    # =========================
-    print("🧪 VOR MEILENSTEIN CHECK", flush=True)
+# =========================
+# MEILENSTEIN CHECK
+# =========================
+print("🧪 VOR MEILENSTEIN CHECK", flush=True)
 
-    try:
-        spielabsprachen = await client.fetch_channel(LOG_CHANNEL_ID)
-        print("🧪 CHANNEL GEFUNDEN", flush=True)
+try:
+    spielabsprachen = await client.fetch_channel(LOG_CHANNEL_ID)
+    print("🧪 CHANNEL GEFUNDEN", flush=True)
 
     for player in [p1, p2]:
         print(f"🧪 MEILENSTEIN CHECK: {player}", flush=True)
         await check_meilensteine(player, spielabsprachen)
 
-    except Exception as e:
-        print(f"❌ MEILENSTEIN FETCH ERROR: {repr(e)}", flush=True)
+except Exception as e:
+    print(f"❌ MEILENSTEIN FETCH ERROR: {repr(e)}", flush=True)
 
-    print("🧪 NACH MEILENSTEIN CHECK", flush=True)
+print("🧪 NACH MEILENSTEIN CHECK", flush=True)
+
+print(
+    f"🧪 MAIN RESPONSE ERREICHT: winner={winner}, loser={loser}, "
+    f"score={w_score}:{l_score}",
+    flush=True
+)
     # =========================
     # MAIN RESPONSE
     # =========================
