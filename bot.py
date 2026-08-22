@@ -3474,7 +3474,8 @@ Wendet euch an die Admins 🙂"""
             f"🎮 Restspiele: {remaining(player)}"
         )
         return
-
+        
+    print("🧪 TEST 14 VOR COMMANDS", flush=True)
     # =========================
     # MATCH PARSE
     # =========================
