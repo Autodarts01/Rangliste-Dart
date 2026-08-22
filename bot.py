@@ -3392,6 +3392,7 @@ Wendet euch an die Admins 🙂"""
         except Exception as e:
             await message.channel.send(f"❌ Fehler: `{e}`")
         return
+    print("🧪 GEBURTSTAG BLOCK ÜBERSPRUNGEN", flush=True)
 
     # Ab hier nur im Hauptchannel
     print(
