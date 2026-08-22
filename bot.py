@@ -2383,6 +2383,15 @@ async def on_message(message):
         f"🧪 NACH BOT CHECK: {message.channel.name}",
         flush=True
     )
+
+    print(
+        f"🧪 CHANNEL VERGLEICH: "
+        f"message.channel.name={message.channel.name!r} | "
+        f"CHANNEL_NAME={CHANNEL_NAME!r} | "
+        f"is_main={message.channel.name == CHANNEL_NAME}",
+        flush=True
+    )
+
     print("🧪 VOR CHANNEL PRÜFUNG", flush=True)
     print("🧪 TEST 1", flush=True)
 
