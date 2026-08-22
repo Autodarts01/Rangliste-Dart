@@ -2362,6 +2362,11 @@ async def reset_180(
 # =========================
 @client.event
 async def on_message(message):
+    print(
+    f"🔥 EVENT START ID={message.id} | "
+    f"CONTENT={message.content}",
+    flush=True
+)
     print("🔥 ON_MESSAGE VERSION NEU", flush=True)
 
     print(
@@ -2420,6 +2425,11 @@ async def on_message(message):
     print("🧪 TEST 12 NACH RESET", flush=True)
 
     content = message.content
+    print(
+    f"🔥 EVENT CONTENT ID={message.id} | "
+    f"CONTENT={content}",
+    flush=True
+    )
     print("🧪 TEST A: CONTENT GESETZT", flush=True)
 
     print(
