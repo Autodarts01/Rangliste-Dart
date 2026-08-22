@@ -2376,6 +2376,7 @@ async def on_message(message):
         f"🧪 NACH BOT CHECK: {message.channel.name}",
         flush=True
     )
+    print("🧪 VOR CHANNEL PRÜFUNG", flush=True)
     # ==========================================
     # 🎯 MANFRED 180 TRACKER
     # ==========================================
