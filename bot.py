@@ -2995,21 +2995,21 @@ async def on_message(message):
     # =========================
 
     # =========================
-# USER COMMANDS
-# =========================
+    # USER COMMANDS
+    # =========================
 
-print("🚨 VOR HILFE BLOCK", flush=True)
+    print("🚨 VOR HILFE BLOCK", flush=True)
 
-if content.lower().startswith("!hilfe"):
-    if not is_stats_channel and message.channel.id != SPIELER_INFO_CHANNEL_ID:
+    if content.lower().startswith("!hilfe"):
+        if not is_stats_channel and message.channel.id != SPIELER_INFO_CHANNEL_ID:
+            return
+
+        print("🚨 HILFE BLOCK ERKANNT", flush=True)
+
+        await message.channel.send("🎯 Hilfe funktioniert.")
         return
 
-    print("🚨 HILFE BLOCK ERKANNT", flush=True)
-
-    await message.channel.send("🎯 Hilfe funktioniert.")
-    return
-
-print("🚨 NACH HILFE BLOCK", flush=True)
+    print("🚨 NACH HILFE BLOCK", flush=True)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 👥 USER KOMMANDOS (#rangliste-spieler-info)
