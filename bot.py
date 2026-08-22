@@ -3365,6 +3365,13 @@ Wendet euch an die Admins 🙂"""
         return
 
     # Ab hier nur im Hauptchannel
+    print(
+    f"🧪 CHANNEL CHECK: "
+    f"name={message.channel.name} | "
+    f"is_main_channel={is_main_channel} | "
+    f"CHANNEL_NAME={CHANNEL_NAME}",
+    flush=True
+    )
     if not is_main_channel:
         return
 
