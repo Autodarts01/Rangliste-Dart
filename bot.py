@@ -2460,9 +2460,22 @@ async def on_message(message):
     # ==========================================
     # 🎯 MANFRED 180 TRACKER
     # ==========================================
+
+    print(
+        f"🧪 180 CHECK: "
+        f"channel={message.channel.name!r} | "
+        f"MANFRED_180_ERGEBNIS_CHANNEL={MANFRED_180_ERGEBNIS_CHANNEL!r}",
+        flush=True
+    )
+
     if message.channel.name == MANFRED_180_ERGEBNIS_CHANNEL:
+        print("🚨 180 BLOCK ERKANNT", flush=True)
+
         await verarbeite_180(message)
-        return
+
+        print("🚨 180 BLOCK FERTIG", flush=True)
+
+    # KEIN return hier!
     # =========================
     # Stats-Commands auch im Stats-Channel erlauben
     # =========================
