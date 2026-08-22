@@ -3514,34 +3514,52 @@ Wendet euch an die Admins 🙂"""
         match_count[normalize(loser)] += 1
 
     # Tages-Tracking
-    today_matches.append({"p1": p1, "p2": p2, "winner": winner})
-    
-# =========================
-# MEILENSTEIN CHECK
-# =========================
-print("🧪 VOR MEILENSTEIN CHECK", flush=True)
+    today_matches.append({
+        "p1": p1,
+        "p2": p2,
+        "winner": winner
+    })
 
-try:
-    spielabsprachen = await client.fetch_channel(LOG_CHANNEL_ID)
-    print("🧪 CHANNEL GEFUNDEN", flush=True)
+    # =========================
+    # MEILENSTEIN CHECK
+    # =========================
+    print("🧪 VOR MEILENSTEIN CHECK", flush=True)
 
-    for player in [p1, p2]:
-        print(f"🧪 MEILENSTEIN CHECK: {player}", flush=True)
-        await check_meilensteine(player, spielabsprachen)
+    try:
+        spielabsprachen = await client.fetch_channel(LOG_CHANNEL_ID)
+        print("🧪 CHANNEL GEFUNDEN", flush=True)
 
-except Exception as e:
-    print(f"❌ MEILENSTEIN FETCH ERROR: {repr(e)}", flush=True)
+        for player in [p1, p2]:
+            print(
+                f"🧪 MEILENSTEIN CHECK: {player}",
+                flush=True
+            )
+            await check_meilensteine(
+                player,
+                spielabsprachen
+            )
 
-print("🧪 NACH MEILENSTEIN CHECK", flush=True)
+    except Exception as e:
+        print(
+            f"❌ MEILENSTEIN FETCH ERROR: {repr(e)}",
+            flush=True
+        )
 
-print(
-    f"🧪 MAIN RESPONSE ERREICHT: winner={winner}, loser={loser}, "
-    f"score={w_score}:{l_score}",
-    flush=True
-)
+    print(
+        "🧪 NACH MEILENSTEIN CHECK",
+        flush=True
+    )
+
     # =========================
     # MAIN RESPONSE
     # =========================
+    print(
+        f"🧪 MAIN RESPONSE ERREICHT: "
+        f"winner={winner}, loser={loser}, "
+        f"score={w_score}:{l_score}",
+        flush=True
+    )
+
     if winner == "Unentschieden":
         await message.channel.send(
             f"🤝 Unentschieden {w_score}:{l_score}"
