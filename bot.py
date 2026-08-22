@@ -2400,15 +2400,15 @@ async def on_message(message):
     print("🧪 TEST 8 VOR CHANNEL RETURN", flush=True)
 
     if (
-    not is_main_channel
-    and not is_stats_channel
-    and not is_spielabsprachen
-    and not is_spieler_info
-    and not is_abwesenheit
-    and not is_geburtstage
+        not is_main_channel
+        and not is_stats_channel
+        and not is_spielabsprachen
+        and not is_spieler_info
+        and not is_abwesenheit
+        and not is_geburtstage
     ):
-    print("🧪 TEST 9: CHANNEL RETURN!", flush=True)
-    return
+        print("🧪 TEST 9: CHANNEL RETURN!", flush=True)
+        return
 
     print("🧪 TEST 10: CHANNEL OK", flush=True)
     # ==========================================
