@@ -1705,47 +1705,100 @@ def get_monthly_count(p1, p2):
 
 
 async def midnight_auswertung():
-    """Laeuft taeglich um Mitternacht DE-Zeit (22:00 UTC) und postet Tagesauswertung."""
+    """Laeuft taeglich um 00:05 Uhr Europe/Vienna."""
     await client.wait_until_ready()
     from datetime import timedelta
+    from zoneinfo import ZoneInfo
+    WIEN = ZoneInfo("Europe/Vienna")
     while not client.is_closed():
-        now = datetime.now(timezone.utc).replace(tzinfo=None)
-        # Mitternacht DE = 22:00 UTC (UTC+2)
-        next_midnight = now.replace(hour=22, minute=0, second=0, microsecond=0)
-        if next_midnight <= now:
-            next_midnight += timedelta(days=1)
-        await asyncio.sleep((next_midnight - now).total_seconds())
-
         try:
-            stats_channel = await client.fetch_channel(STATS_CHANNEL_ID)
-
+            jetzt = datetime.now(WIEN)
+            # Naechster Lauf: 00:05 Uhr Wiener Zeit
+            naechster_lauf = jetzt.replace(
+                hour=0,
+                minute=5,
+                second=0,
+                microsecond=0
+            )
+            if naechster_lauf <= jetzt:
+                naechster_lauf += timedelta(days=1)
+            wartezeit = (
+                naechster_lauf - jetzt
+            ).total_seconds()
+            print(
+                f"🌙 Tagesauswertung geplant fuer "
+                f"{naechster_lauf.strftime('%d.%m.%Y %H:%M:%S')} "
+                f"(Wien)",
+                flush=True
+            )
+            await asyncio.sleep(wartezeit)
+            stats_channel = await client.fetch_channel(
+                STATS_CHANNEL_ID
+            )
+            # ==========================================
+            # 📊 TAGESAUSWERTUNG
+            # ==========================================
             if not today_matches:
-                await stats_channel.send("📊 Tagesauswertung: Heute wurden keine Spiele gespielt.")
+                await stats_channel.send(
+                    "📊 **Tagesauswertung:** "
+                    "Heute wurden keine Spiele gespielt."
+                )
             else:
-                # Siege zählen
                 player_wins = defaultdict(int)
                 player_games = defaultdict(int)
                 for m in today_matches:
-                    if m["winner"] != "Unentschieden":
+                    if (
+                        m["winner"]
+                        and m["winner"].lower()
+                        != "unentschieden"
+                    ):
                         player_wins[m["winner"]] += 1
                     player_games[m["p1"]] += 1
                     player_games[m["p2"]] += 1
-
-                most_games_player = max(player_games, key=player_games.get)
-                most_wins_player = max(player_wins, key=player_wins.get) if player_wins else None
-
-                msg = f"🌙 **Tagesauswertung {date.today().strftime('%d.%m.%Y')}**\n\n"
-                msg += f"🎮 Gespielte Matches heute: {len(today_matches)}\n"
-                msg += f"🏅 Meiste Spiele: {most_games_player} ({player_games[most_games_player]} Spiele)\n"
+                most_games_player = max(
+                    player_games,
+                    key=player_games.get
+                )
+                most_wins_player = (
+                    max(
+                        player_wins,
+                        key=player_wins.get
+                    )
+                    if player_wins
+                    else None
+                )
+                msg = (
+                    f"🌙 **Tagesauswertung "
+                    f"{jetzt.strftime('%d.%m.%Y')}**\n\n"
+                    f"🎮 Gespielte Matches heute: "
+                    f"**{len(today_matches)}**\n"
+                    f"🏅 Meiste Spiele: "
+                    f"**{most_games_player}** "
+                    f"({player_games[most_games_player]} Spiele)\n"
+                )
                 if most_wins_player:
-                    msg += f"🏆 Meiste Siege: {most_wins_player} ({player_wins[most_wins_player]} Siege)\n"
-
+                    msg += (
+                        f"🏆 Meiste Siege: "
+                        f"**{most_wins_player}** "
+                        f"({player_wins[most_wins_player]} Siege)\n"
+                    )
                 await stats_channel.send(msg)
-
+            # ==========================================
+            # 🔄 NEUEN TAG STARTEN
+            # ==========================================
+            today_matches.clear()
+            match_count.clear()
+            print(
+                "🔄 Tagesdaten wurden zurückgesetzt.",
+                flush=True
+            )
         except Exception as e:
-            print("❌ MIDNIGHT ERROR:", e)
-
-        await asyncio.sleep(60)  # kurz warten damit es nicht doppelt feuert
+            print(
+                f"❌ MIDNIGHT ERROR: {repr(e)}",
+                flush=True
+            )
+        # Verhindert doppeltes Ausführen
+        await asyncio.sleep(60)
 
 
 # =========================
