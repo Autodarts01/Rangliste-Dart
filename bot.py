@@ -3526,32 +3526,32 @@ Wendet euch an die Admins 🙂"""
     except Exception as e:
         print("❌ MEILENSTEIN FETCH ERROR:", e)
 
-# =========================
-# MAIN RESPONSE
-# =========================
-if winner == "Unentschieden":
-    await message.channel.send(
-        f"🤝 Unentschieden {w_score}:{l_score}"
-    )
-else:
-    rest_winner = remaining(winner)
-    rest_loser = remaining(loser)
+    # =========================
+    # MAIN RESPONSE
+    # =========================
+    if winner == "Unentschieden":
+        await message.channel.send(
+            f"🤝 Unentschieden {w_score}:{l_score}"
+        )
+    else:
+        rest_winner = remaining(winner)
+        rest_loser = remaining(loser)
 
-    await message.channel.send(
-        f"🏆 Sieger: {winner} ({w_score}:{l_score})\n"
-        f"🎮 {winner} noch {rest_winner} Spiele\n"
-        f"🎮 {loser} noch {rest_loser} Spiele"
-    )
+        await message.channel.send(
+            f"🏆 Sieger: {winner} ({w_score}:{l_score})\n"
+            f"🎮 {winner} noch {rest_winner} Spiele\n"
+            f"🎮 {loser} noch {rest_loser} Spiele"
+        )
 
-    # ⚠️ 1 SPIEL ÜBRIG
-    for player, rest in [
-        (winner, rest_winner),
-        (loser, rest_loser)
-    ]:
-        if rest == 1:
-            await message.channel.send(
-                f"⚠️ {player} hat nur noch 1 Spiel übrig!"
-            )
+        # ⚠️ 1 SPIEL ÜBRIG
+        for player, rest in [
+            (winner, rest_winner),
+            (loser, rest_loser)
+        ]:
+            if rest == 1:
+                await message.channel.send(
+                    f"⚠️ {player} hat nur noch 1 Spiel übrig!"
+                )
 
     # =========================
     # SPIELABSPRACHEN: Dominanz + Lanzi
