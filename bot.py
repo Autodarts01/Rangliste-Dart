@@ -2391,6 +2391,12 @@ async def on_message(message):
         return
     reset_daily()
     content = message.content
+    print(
+    f"🧪 ON_MESSAGE: channel={message.channel.name} | "
+    f"content={message.content}",
+    flush=True
+    )
+    
     # =========================
     # !stats Spieler
     # =========================
