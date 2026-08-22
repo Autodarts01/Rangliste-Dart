@@ -3023,19 +3023,20 @@ async def on_message(message):
         return
         
     # =========================
-    # USER COMMANDS
-    # =========================
+# USER COMMANDS
+# =========================
 
-    print("🚨 VOR HILFE BLOCK", flush=True)
+print("🚨 VOR HILFE BLOCK", flush=True)
 
-    if content.lower().startswith("!hilfe"):
-        if not is_stats_channel and message.channel.id != SPIELER_INFO_CHANNEL_ID:
-            return
+if content.lower().startswith("!hilfe"):
 
-        print("🚨 HILFE BLOCK ERKANNT", flush=True)
+    # !hilfe NUR im Statistik-Channel
+    if not is_stats_channel:
+        return
 
-        if is_stats_channel:
-            hilfe_admin = """🎯 MANFRED - ALLE KOMMANDOS
+    print("🚨 HILFE BLOCK ERKANNT", flush=True)
+
+    hilfe_admin = """🎯 MANFRED - ALLE KOMMANDOS
 
     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     👥 USER KOMMANDOS (#rangliste-spieler-info)
@@ -3079,7 +3080,7 @@ async def on_message(message):
     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     🔄 SAISON
     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    ! → Saisonreset ankündigen
+    !saisonreset → Saisonreset ankündigen
     !saisonreset confirm → Saison archivieren & leeren
 
     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -3098,8 +3099,8 @@ async def on_message(message):
     09:00 → Geburtstags-Glückwunsch
     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"""
 
-            await message.channel.send(hilfe_admin)
-            return
+        await message.channel.send(hilfe_admin)
+        return
 
         hilfe_text = """🎯 MANFRED – EUER DART-BOT 🎯
 
