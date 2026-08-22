@@ -2423,6 +2423,7 @@ async def on_message(message):
         f"🧪 TEST 13 CONTENT: {content}",
         flush=True
     )
+    print("🧪 TEST 14 VOR COMMANDS", flush=True)
     # ==========================================
     # 🎯 MANFRED 180 TRACKER
     # ==========================================
@@ -3475,7 +3476,7 @@ Wendet euch an die Admins 🙂"""
         )
         return
         
-    print("🧪 TEST 14 VOR COMMANDS", flush=True)
+    print("🧪 TEST 15 VOR MATCH PARSE", flush=True)
     # =========================
     # MATCH PARSE
     # =========================
