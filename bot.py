@@ -2401,6 +2401,17 @@ async def on_message(message):
         and not is_geburtstage
     ):
         return
+        
+    print(
+        f"🧪 CHANNEL STATUS: "
+        f"main={is_main_channel}, "
+        f"stats={is_stats_channel}, "
+        f"log={is_spielabsprachen}, "
+        f"info={is_spieler_info}, "
+        f"urlaub={is_abwesenheit}, "
+        f"geburtstag={is_geburtstage}",
+        flush=True
+    )
     reset_daily()
     content = message.content
     print(
