@@ -3515,7 +3515,20 @@ Wendet euch an die Admins 🙂"""
 
     # Tages-Tracking
     today_matches.append({"p1": p1, "p2": p2, "winner": winner})
-
+        # =========================
+    # 📊 TABELLE SOFORT AKTUALISIEREN
+    # =========================
+    try:
+        await post_tabelle()
+        print(
+            "📊 Tabelle wurde nach dem Spielergebnis aktualisiert.",
+            flush=True
+        )
+    except Exception as e:
+        print(
+            f"❌ TABELLE UPDATE ERROR: {repr(e)}",
+            flush=True
+        )
     # =========================
     # MEILENSTEIN CHECK
     # =========================
