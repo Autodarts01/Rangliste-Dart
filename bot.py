@@ -2989,24 +2989,21 @@ async def on_message(message):
             print("❌ SAISONRESET ERROR:", e)
             await message.channel.send(f"❌ Fehler beim Saisonreset: `{e}`")
         return
+        
+# =========================
+# USER COMMANDS
+# =========================
 
-    # =========================
-    # USER COMMANDS (nur in Spielabsprachen)
-    # =========================
+print("🚨 VOR HILFE BLOCK", flush=True)
 
-
-    print("🚨 VOR HILFE BLOCK", flush=True)
-
-    if content.lower().startswith("!hilfe"):
-        if not is_stats_channel and message.channel.id != SPIELER_INFO_CHANNEL_ID:
-            return
-
-        print("🚨 HILFE BLOCK ERKANNT", flush=True)
-
-        await message.channel.send("🎯 Hilfe funktioniert.")
+if content.lower().startswith("!hilfe"):
+    if not is_stats_channel and message.channel.id != SPIELER_INFO_CHANNEL_ID:
         return
 
-    print("🚨 NACH HILFE BLOCK", flush=True)
+    print("🚨 HILFE BLOCK ERKANNT", flush=True)
+
+    if is_stats_channel:
+        hilfe_admin = """🎯 MANFRED - ALLE KOMMANDOS
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 👥 USER KOMMANDOS (#rangliste-spieler-info)
@@ -3037,8 +3034,8 @@ async def on_message(message):
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 !add @Spieler +1/-1 → Tageslimit anpassen
 !undo → Letzten Eintrag löschen
-/test-monatsreset → Monatsreset testen, Rangliste wird nicht verändert
-@Spieler 1x180 → 180 wird erkannt und automatisch in #statistiken gepostet
+/test-monatsreset → Monatsreset testen
+@Spieler 1x180 → 180 wird erkannt
 /180-reset → Alle 180-Statistiken auf 0 setzen
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -3067,56 +3064,283 @@ async def on_message(message):
 07:00 / 14:00 / 18:00 / 22:00 → Tabelle
 00:00 → Tagesauswertung
 09:00 → Geburtstags-Glückwunsch
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"""
+
+        await message.channel.send(hilfe_admin)
+        return
+
+    hilfe_text = """🎯 MANFRED – EUER DART-BOT 🎯
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📋 ERGEBNIS EINTRAGEN
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Schreibt einfach so:
+
 @Spieler1 vs @Spieler2 3:1
+
 ⚠️ WICHTIG:
 - Beide Spieler MÜSSEN mit @ markiert werden
 - Jeder hat nur 5 Spiele pro Tag
 - Funktioniert auch mit: vs. | gegen | (3:1) | 3-1
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🤖 MEINE KOMMANDOS (hier eingeben)
+🤖 MEINE KOMMANDOS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 !ich
-→ Zeigt deine eigenen Stats (Siege, Niederlagen, Win-Rate)
-   Einfach tippen — der Bot erkennt dich automatisch!
+→ Zeigt deine eigenen Stats
+   Siege, Niederlagen und Win-Rate
+
 !ziel
-→ Zeigt wie viele Spiele/Siege du noch bis zur nächsten
-   Auszeichnung brauchst 🏆
+→ Zeigt deine nächsten Meilensteine
+   und deinen aktuellen Rang 🏆
+
 !nächster
 → Zeigt wer heute noch Spiele übrig hat
-   Perfekt um schnell einen Gegner zu finden! 🎯
+   Perfekt um einen Gegner zu finden! 🎯
+
 !quote
-→ Zufälliger Motivationsspruch wenn du einen
-   aufmunternden Push brauchst 💪
+→ Zufälliger Motivationsspruch 💪
+
 !h2h @Spieler
-→ Direktvergleich zwischen dir und @Spieler,
-   zählt auch archivierte Saisons mit! ⚔️
+→ Direktvergleich mit dem Spieler,
+   inklusive archivierter Saisons ⚔️
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🏅 MEILENSTEINE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Manfred gratuliert automatisch wenn ihr erreicht:
-🎮 Spiele:
-- 10 Spiele  → 🚀 Anfang einer Legende
-- 25 Spiele  → 🎯 Die Scheibe hat Respekt
-- 50 Spiele  → 💪 Nicht mehr aufzuhalten
-- 100 Spiele → 👑 Absolute Legende
-🏆 Siege:
-- 10 Siege  → 🥉 Bronze
-- 25 Siege  → 🥈 Silber
-- 50 Siege  → 🥇 Gold
-- 100 Siege → 👑 Unsterblich
+Manfred gratuliert automatisch:
+
+🎮 SPIELE
+10 Spiele  → 🚀 Anfang einer Legende
+25 Spiele  → 🎯 Die Scheibe hat Respekt
+50 Spiele  → 💪 Nicht mehr aufzuhalten
+100 Spiele → 👑 Absolute Legende
+
+🏆 SIEGE
+10 Siege  → 🥉 Bronze
+25 Siege  → 🥈 Silber
+50 Siege  → 🥇 Gold
+100 Siege → 👑 Unsterblich
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ❓ FRAGEN?
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Wendet euch an die Admins 🙂"""
-        await message.channel.send(hilfe_text)
+
+    await message.channel.send(hilfe_text)
+    return
+
+print("🚨 NACH HILFE BLOCK", flush=True)
+
+
+# =========================
+# !quote
+# =========================
+
+if content.lower().startswith("!quote"):
+    if message.channel.id != SPIELER_INFO_CHANNEL_ID:
         return
+
+    quotes = [
+        "🎯 Ein schlechter Tag am Dartboard ist besser als ein guter Tag ohne Dart!",
+        "🎯 Uebung macht den Meister — wirf einfach weiter!",
+        "🎯 Jeder Profi war mal ein Anfaenger. Heute koennte dein Tag sein!",
+        "🎯 Dart ist 10% Talent und 90% nicht aufhoeren zu ueben!",
+        "🎯 Die Scheibe wartet auf dich. Sie hat Angst. 😏",
+        "🎯 Niederlagen sind Lektionen. Siege sind Belohnungen. Beides macht dich besser!",
+        "🎯 Ein Pfeil kann alles veraendern. Wirf ihn!",
+        "🎯 Champions werden nicht geboren — sie werden geworfen! 💪",
+        "🎯 Glaub an deinen Arm, auch wenn die Scheibe das noch nicht tut!",
+        "🎯 Heute verloren? Morgen gewonnen. So laeuft das hier!",
+    ]
+
+    await message.channel.send(random.choice(quotes))
+    return
+
+
+# =========================
+# !ich
+# =========================
+
+if content.lower().startswith("!ich"):
+    if message.channel.id != SPIELER_INFO_CHANNEL_ID:
+        return
+
+    spieler = message.author.display_name
+
+    try:
+        stats = get_stats_from_sheet()
+        s = None
+
+        for k, v in stats.items():
+            if normalize(k) == normalize(spieler):
+                s = v
+                break
+
+        if not s or s["spiele"] == 0:
+            await message.channel.send(
+                f"❌ Keine Daten fuer {spieler} gefunden."
+            )
+            return
+
+        winrate = round(s["siege"] / s["spiele"] * 100, 1)
+
+        msg = (
+            f"📊 **Deine Stats, {spieler}**\n"
+            f"🎮 Spiele gesamt: {s['spiele']}\n"
+            f"🏆 Siege: {s['siege']}\n"
+            f"💀 Niederlagen: {s['niederlagen']}\n"
+            f"📈 Win-Rate: {winrate}%"
+        )
+
+        await message.channel.send(msg)
+
+    except Exception as e:
+        await message.channel.send(f"❌ Fehler: `{e}`")
+
+    return
+
+
+# =========================
+# !ziel
+# =========================
+
+if content.lower().startswith("!ziel"):
+    if message.channel.id != SPIELER_INFO_CHANNEL_ID:
+        return
+
+    spieler = message.author.display_name
+
+    try:
+        stats = get_stats_from_sheet()
+        s = None
+
+        for k, v in stats.items():
+            if normalize(k) == normalize(spieler):
+                s = v
+                break
+
+        if not s or s["spiele"] == 0:
+            await message.channel.send(
+                f"❌ Keine Daten fuer {spieler} gefunden."
+            )
+            return
+
+        msg = f"🎯 **Naechste Ziele fuer {spieler}:**\n\n"
+
+        # Spiele-Meilensteine
+        naechstes_spiel_ziel = None
+
+        for m in sorted(SPIELE_MEILENSTEINE.keys()):
+            if s["spiele"] < m:
+                naechstes_spiel_ziel = m
+                break
+
+        if naechstes_spiel_ziel:
+            msg += (
+                f"🎮 Spiele: noch **"
+                f"{naechstes_spiel_ziel - s['spiele']}** "
+                f"bis zum {naechstes_spiel_ziel}-Spiele-Meilenstein\n"
+            )
+        else:
+            msg += "🎮 Spiele: Alle Meilensteine erreicht! 👑\n"
+
+        # Siege-Meilensteine
+        naechstes_sieg_ziel = None
+
+        for m in sorted(SIEGE_MEILENSTEINE.keys()):
+            if s["siege"] < m:
+                naechstes_sieg_ziel = m
+                break
+
+        if naechstes_sieg_ziel:
+            msg += (
+                f"🏆 Siege: noch **"
+                f"{naechstes_sieg_ziel - s['siege']}** "
+                f"bis zum {naechstes_sieg_ziel}-Siege-Meilenstein\n"
+            )
+        else:
+            msg += "🏆 Siege: Alle Meilensteine erreicht! 👑\n"
+
+        # Aktueller Rang
+        tabelle = get_tabelle()
+        mein_rang = None
+        meine_punkte = 0
+
+        for i, p in enumerate(tabelle):
+            if normalize(p["name"]) == normalize(spieler):
+                mein_rang = i + 1
+                meine_punkte = p["punkte"]
+                break
+
+        if mein_rang:
+            msg += f"\n📊 Aktueller Rang: **{mein_rang}**\n"
+
+            if mein_rang > 1:
+                vorheriger = tabelle[mein_rang - 2]
+                punkte_diff = vorheriger["punkte"] - meine_punkte
+
+                if punkte_diff == 0:
+                    msg += (
+                        f"🔝 Gleich viele Punkte wie "
+                        f"**{vorheriger['name']}** "
+                        f"(Rang {mein_rang - 1}) - "
+                        f"Leg-Differenz entscheidet!\n"
+                    )
+                else:
+                    msg += (
+                        f"🔝 Noch **{punkte_diff} Punkte** "
+                        f"bis Rang {mein_rang - 1} "
+                        f"(**{vorheriger['name']}**)\n"
+                    )
+            else:
+                msg += "👑 Du bist Tabellenführer!\n"
+
+        await message.channel.send(msg)
+
+    except Exception as e:
+        await message.channel.send(f"❌ Fehler: `{e}`")
+
+    return
+
+
+# =========================
+# !nächster / !naechster
+# =========================
+
+if content.lower().startswith("!naechster") or content.lower().startswith("!nächster"):
+    if message.channel.id != SPIELER_INFO_CHANNEL_ID:
+        return
+
+    try:
+        verfuegbar = []
+
+        for player, count in match_count.items():
+            if (
+                count < MAX_MATCHES_PER_DAY
+                and normalize(player) != normalize(message.author.display_name)
+            ):
+                verfuegbar.append(
+                    f"• {player} "
+                    f"({MAX_MATCHES_PER_DAY - count} Spiele übrig)"
+                )
+
+        if not verfuegbar:
+            await message.channel.send(
+                "😴 Heute hat niemand mehr Spiele übrig!"
+            )
+        else:
+            msg = (
+                "🎯 **Verfuegbare Gegner heute:**\n"
+                + "\n".join(verfuegbar)
+            )
+            await message.channel.send(msg)
+
+    except Exception as e:
+        await message.channel.send(f"❌ Fehler: `{e}`")
+
+    return
 
     if content.lower().startswith("!quote"):
         if not (message.channel.id == SPIELER_INFO_CHANNEL_ID):
