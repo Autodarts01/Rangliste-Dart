@@ -3411,6 +3411,8 @@ Wendet euch an die Admins 🙂"""
             "Beispiel: `@Sam The Gambler vs @squishy_180 3:2`"
         )
         return
+        
+    print("🧪 MATCH PARSER ERREICHT", flush=True)
 
     result = resolve_names(message, content)
 
