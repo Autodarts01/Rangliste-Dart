@@ -2414,7 +2414,7 @@ async def on_message(message):
     print("🧪 TEST 7", flush=True)
     
     print("🧪 TEST 8 VOR CHANNEL RETURN", flush=True)
-        print(
+    print(
         f"🟢 TEST 9 ÜBERSTANDEN | "
         f"main={is_main_channel} | "
         f"stats={is_stats_channel} | "
