@@ -3518,6 +3518,7 @@ Wendet euch an die Admins 🙂"""
         # Datum in Spalte H eintragen
         last_row = len(sheet.get_all_values())
         sheet.update_cell(last_row, 8, datetime.now().strftime("%d.%m.%Y"))
+        print("🧪 SHEETS SPEICHERN FERTIG", flush=True)
     except Exception as e:
         print("❌ SHEETS ERROR:", e)
         await message.channel.send("❌ Fehler beim Speichern!")
