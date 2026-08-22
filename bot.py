@@ -3202,32 +3202,32 @@ async def on_message(message):
         return
 
 
-# =========================
-# !ziel
-# =========================
+    # =========================
+    # !ziel
+    # =========================
 
-if content.lower().startswith("!ziel"):
-    if message.channel.id != SPIELER_INFO_CHANNEL_ID:
-        return
-
-    spieler = message.author.display_name
-
-    try:
-        stats = get_stats_from_sheet()
-        s = None
-
-        for k, v in stats.items():
-            if normalize(k) == normalize(spieler):
-                s = v
-                break
-
-        if not s or s["spiele"] == 0:
-            await message.channel.send(
-                f"❌ Keine Daten fuer {spieler} gefunden."
-            )
+    if content.lower().startswith("!ziel"):
+        if message.channel.id != SPIELER_INFO_CHANNEL_ID:
             return
 
-        msg = f"🎯 **Naechste Ziele fuer {spieler}:**\n\n"
+        spieler = message.author.display_name
+
+        try:
+            stats = get_stats_from_sheet()
+            s = None
+
+            for k, v in stats.items():
+                if normalize(k) == normalize(spieler):
+                    s = v
+                    break
+
+            if not s or s["spiele"] == 0:
+                await message.channel.send(
+                    f"❌ Keine Daten fuer {spieler} gefunden."
+                )
+                return
+
+            msg = f"🎯 **Naechste Ziele fuer {spieler}:**\n\n"
 
         # =========================
         # Spiele-Meilensteine
