@@ -3604,6 +3604,8 @@ async def on_message(message):
     print("🧪 TEST 15 VOR MATCH PARSE", flush=True)
     print("🧪 TEST C: MATCH PARSER ERREICHT", flush=True)
     print("🚨 TEST VOR MATCH PARSE", flush=True)
+    print("🧪 TEST B1", flush=True)
+    print("🧪 TEST B2 VOR MATCH PARSE", flush=True)
     # =========================
     # MATCH PARSE
     # =========================
