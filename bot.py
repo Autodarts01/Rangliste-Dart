@@ -3342,23 +3342,6 @@ if content.lower().startswith("!naechster") or content.lower().startswith("!näc
 
     return
 
-    if content.lower().startswith("!quote"):
-        if not (message.channel.id == SPIELER_INFO_CHANNEL_ID):
-            return
-        quotes = [
-            "🎯 Ein schlechter Tag am Dartboard ist besser als ein guter Tag ohne Dart!",
-            "🎯 Uebung macht den Meister — wirf einfach weiter!",
-            "🎯 Jeder Profi war mal ein Anfaenger. Heute koennte dein Tag sein!",
-            "🎯 Dart ist 10% Talent und 90% nicht aufhoeren zu ueben!",
-            "🎯 Die Scheibe wartet auf dich. Sie hat Angst. 😏",
-            "🎯 Niederlagen sind Lektionen. Siege sind Belohnungen. Beides macht dich besser!",
-            "🎯 Ein Pfeil kann alles veraendern. Wirf ihn!",
-            "🎯 Champions werden nicht geboren — sie werden geworfen! 💪",
-            "🎯 Glaub an deinen Arm, auch wenn die Scheibe das noch nicht tut!",
-            "🎯 Heute verloren? Morgen gewonnen. So laeuft das hier!",
-        ]
-        await message.channel.send(random.choice(quotes))
-        return
 
     if content.lower().startswith("!ich"):
         if not (message.channel.id == SPIELER_INFO_CHANNEL_ID):
