@@ -2411,6 +2411,18 @@ async def on_message(message):
         return
 
     print("🧪 TEST 10: CHANNEL OK", flush=True)
+    print("🧪 TEST 11 VOR RESET", flush=True)
+
+    reset_daily()
+
+    print("🧪 TEST 12 NACH RESET", flush=True)
+
+    content = message.content
+
+    print(
+        f"🧪 TEST 13 CONTENT: {content}",
+        flush=True
+    )
     # ==========================================
     # 🎯 MANFRED 180 TRACKER
     # ==========================================
