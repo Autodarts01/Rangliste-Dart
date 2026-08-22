@@ -3202,108 +3202,123 @@ async def on_message(message):
         return
 
 
-    # =========================
-    # !ziel
-    # =========================
+# =========================
+# !ziel
+# =========================
 
-    if content.lower().startswith("!ziel"):
-        if message.channel.id != SPIELER_INFO_CHANNEL_ID:
-            return
-
-        spieler = message.author.display_name
-
-        try:
-           vstats = get_stats_from_sheet()
-            s = None
-
-            for k, v in stats.items():
-                if normalize(k) == normalize(spieler):
-                    s = v
-                    break
-
-            if not s or s["spiele"] == 0:
-                 await message.channel.send(
-                    f"❌ Keine Daten fuer {spieler} gefunden."
-                )
-                return
-
-             msg = f"🎯 **Naechste Ziele fuer {spieler}:**\n\n"
-
-            # Spiele-Meilensteine
-            naechstes_spiel_ziel = None
-
-            for m in sorted(SPIELE_MEILENSTEINE.keys()):
-                if s["spiele"] < m:
-                    naechstes_spiel_ziel = m
-                    break
-
-            if naechstes_spiel_ziel:
-                msg += (
-                    f"🎮 Spiele: noch **"
-                    f"{naechstes_spiel_ziel - s['spiele']}** "
-                    f"bis zum {naechstes_spiel_ziel}-Spiele-Meilenstein\n"
-                )
-            else:
-                msg += "🎮 Spiele: Alle Meilensteine erreicht! 👑\n"
-
-            # Siege-Meilensteine
-            naechstes_sieg_ziel = None
-
-            for m in sorted(SIEGE_MEILENSTEINE.keys()):
-                if s["siege"] < m:
-                    naechstes_sieg_ziel = m
-                    break
-
-            if naechstes_sieg_ziel:
-                msg += (
-                    f"🏆 Siege: noch **"
-                    f"{naechstes_sieg_ziel - s['siege']}** "
-                    f"bis zum {naechstes_sieg_ziel}-Siege-Meilenstein\n"
-                )
-            else:
-               bmsg += "🏆 Siege: Alle Meilensteine erreicht! 👑\n"
-
-            # Aktueller Rang
-            tabelle = get_tabelle()
-            mein_rang = None
-            meine_punkte = 0
-
-            for i, p in enumerate(tabelle):
-                if normalize(p["name"]) == normalize(spieler):
-                    mein_rang = i + 1
-                    meine_punkte = p["punkte"]
-                    break
-
-            if mein_rang:
-                msg += f"\n📊 Aktueller Rang: **{mein_rang}**\n"
-
-                if mein_rang > 1:
-                    vorheriger = tabelle[mein_rang - 2]
-                    punkte_diff = vorheriger["punkte"] - meine_punkte
-
-                    if punkte_diff == 0:
-                        msg += (
-                            f"🔝 Gleich viele Punkte wie "
-                            f"**{vorheriger['name']}** "
-                            f"(Rang {mein_rang - 1}) - "
-                            f"Leg-Differenz entscheidet!\n"
-                        )
-                    else:
-                        msg += (
-                            f"🔝 Noch **{punkte_diff} Punkte** "
-                            f"bis Rang {mein_rang - 1} "
-                            f"(**{vorheriger['name']}**)\n"
-                        )
-                else:
-                    msg += "👑 Du bist Tabellenführer!\n"
-
-            await message.channel.send(msg)
-
-        except Exception as e:
-            await message.channel.send(f"❌ Fehler: `{e}`")
-
+if content.lower().startswith("!ziel"):
+    if message.channel.id != SPIELER_INFO_CHANNEL_ID:
         return
 
+    spieler = message.author.display_name
+
+    try:
+        stats = get_stats_from_sheet()
+        s = None
+
+        for k, v in stats.items():
+            if normalize(k) == normalize(spieler):
+                s = v
+                break
+
+        if not s or s["spiele"] == 0:
+            await message.channel.send(
+                f"❌ Keine Daten fuer {spieler} gefunden."
+            )
+            return
+
+        msg = f"🎯 **Naechste Ziele fuer {spieler}:**\n\n"
+
+        # =========================
+        # Spiele-Meilensteine
+        # =========================
+
+        naechstes_spiel_ziel = None
+
+        for m in sorted(SPIELE_MEILENSTEINE.keys()):
+            if s["spiele"] < m:
+                naechstes_spiel_ziel = m
+                break
+
+        if naechstes_spiel_ziel:
+            msg += (
+                f"🎮 Spiele: noch **"
+                f"{naechstes_spiel_ziel - s['spiele']}** "
+                f"bis zum {naechstes_spiel_ziel}-Spiele-Meilenstein\n"
+            )
+        else:
+            msg += (
+                "🎮 Spiele: Alle Meilensteine erreicht! 👑\n"
+            )
+
+        # =========================
+        # Siege-Meilensteine
+        # =========================
+
+        naechstes_sieg_ziel = None
+
+        for m in sorted(SIEGE_MEILENSTEINE.keys()):
+            if s["siege"] < m:
+                naechstes_sieg_ziel = m
+                break
+
+        if naechstes_sieg_ziel:
+            msg += (
+                f"🏆 Siege: noch **"
+                f"{naechstes_sieg_ziel - s['siege']}** "
+                f"bis zum {naechstes_sieg_ziel}-Siege-Meilenstein\n"
+            )
+        else:
+            msg += (
+                "🏆 Siege: Alle Meilensteine erreicht! 👑\n"
+            )
+
+        # =========================
+        # Aktueller Rang
+        # =========================
+
+        tabelle = get_tabelle()
+        mein_rang = None
+        meine_punkte = 0
+
+        for i, p in enumerate(tabelle):
+            if normalize(p["name"]) == normalize(spieler):
+                mein_rang = i + 1
+                meine_punkte = p["punkte"]
+                break
+
+        if mein_rang:
+            msg += f"\n📊 Aktueller Rang: **{mein_rang}**\n"
+
+            if mein_rang > 1:
+                vorheriger = tabelle[mein_rang - 2]
+                punkte_diff = vorheriger["punkte"] - meine_punkte
+
+                if punkte_diff == 0:
+                    msg += (
+                        f"🔝 Gleich viele Punkte wie "
+                        f"**{vorheriger['name']}** "
+                        f"(Rang {mein_rang - 1}) - "
+                        f"Leg-Differenz entscheidet!\n"
+                    )
+                else:
+                    msg += (
+                        f"🔝 Noch **{punkte_diff} Punkte** "
+                        f"bis Rang {mein_rang - 1} "
+                        f"(**{vorheriger['name']}**)\n"
+                    )
+            else:
+                msg += "👑 Du bist Tabellenführer!\n"
+
+        await message.channel.send(msg)
+
+    except Exception as e:
+        print("❌ ZIEL ERROR:", repr(e), flush=True)
+        await message.channel.send(
+            f"❌ Fehler: `{e}`"
+        )
+
+    return
 
     # =========================
     # !nächster / !naechster
