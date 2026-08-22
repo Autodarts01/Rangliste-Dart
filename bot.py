@@ -3525,7 +3525,12 @@ Wendet euch an die Admins 🙂"""
             await check_meilensteine(player, spielabsprachen)
     except Exception as e:
         print("❌ MEILENSTEIN FETCH ERROR:", e)
-
+        
+    print(
+        f"🧪 MAIN RESPONSE ERREICHT: winner={winner}, loser={loser}, "
+        f"score={w_score}:{l_score}",
+        flush=True
+    )
     # =========================
     # MAIN RESPONSE
     # =========================
