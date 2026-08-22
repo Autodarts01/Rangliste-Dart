@@ -2392,15 +2392,7 @@ async def on_message(message):
     is_spieler_info = message.channel.id == SPIELER_INFO_CHANNEL_ID
     is_abwesenheit = message.channel.id == ABWESENHEIT_CHANNEL_ID
     is_geburtstage = message.channel.id == GEBURTSTAGE_CHANNEL_ID
-    if (
-        not is_main_channel
-        and not is_stats_channel
-        and not is_spielabsprachen
-        and not is_spieler_info
-        and not is_abwesenheit
-        and not is_geburtstage
-    ):
-        return
+    
         
     print(
         f"🧪 CHANNEL STATUS: "
