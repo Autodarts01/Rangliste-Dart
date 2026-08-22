@@ -2414,6 +2414,16 @@ async def on_message(message):
     print("🧪 TEST 7", flush=True)
     
     print("🧪 TEST 8 VOR CHANNEL RETURN", flush=True)
+        print(
+        f"🟢 TEST 9 ÜBERSTANDEN | "
+        f"main={is_main_channel} | "
+        f"stats={is_stats_channel} | "
+        f"log={is_spielabsprachen} | "
+        f"info={is_spieler_info} | "
+        f"urlaub={is_abwesenheit} | "
+        f"geburtstag={is_geburtstage}",
+        flush=True
+    )
 
     if (
         not is_main_channel
