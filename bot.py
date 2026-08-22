@@ -2362,6 +2362,8 @@ async def reset_180(
 # =========================
 @client.event
 async def on_message(message):
+    print("🔥 ON_MESSAGE VERSION NEU", flush=True)
+
     print(
         f"🧪 ON_MESSAGE START: author={message.author} | "
         f"bot={message.author.bot} | "
