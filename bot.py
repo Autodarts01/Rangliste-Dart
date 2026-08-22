@@ -3419,6 +3419,10 @@ Wendet euch an die Admins 🙂"""
         return
 
     p1, p2, s1, s2 = result
+    print(
+        f"🧪 MATCH PARSE OK: {p1} vs {p2} | {s1}:{s2}",
+        flush=True
+    )
     s1 = int(s1)
     s2 = int(s2)
 
