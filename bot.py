@@ -3227,7 +3227,7 @@ async def on_message(message):
                 )
                 return
 
-            msg = f"🎯 **Naechste Ziele fuer {spieler}:**\n\n"
+        msg = f"🎯 **Naechste Ziele fuer {spieler}:**\n\n"
 
         # =========================
         # Spiele-Meilensteine
