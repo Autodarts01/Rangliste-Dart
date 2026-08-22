@@ -3453,6 +3453,17 @@ Wendet euch an die Admins 🙂"""
         loser = ""
         w_score = s1
         l_score = s2
+        
+    # =========================
+    # 🧪 TEST NACH WIN LOGIC
+    # =========================
+    print(
+        f"🧪 WIN LOGIC ERREICHT: "
+        f"p1={p1}, p2={p2}, "
+        f"winner={winner}, loser={loser}, "
+        f"score={w_score}:{l_score}",
+        flush=True
+    )
 
     # =========================
     # MONATSLIMIT CHECK (max 15 gegen denselben)
