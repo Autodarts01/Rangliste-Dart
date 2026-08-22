@@ -3505,6 +3505,8 @@ Wendet euch an die Admins 🙂"""
         print("❌ SHEETS ERROR:", e)
         await message.channel.send("❌ Fehler beim Speichern!")
         return
+        
+    print("🧪 VOR COUNTER UPDATE ERREICHT", flush=True)
 
     # =========================
     # COUNTER UPDATE
