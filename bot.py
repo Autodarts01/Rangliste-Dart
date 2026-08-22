@@ -2430,6 +2430,7 @@ async def on_message(message):
     f"CONTENT={content}",
     flush=True
     )
+    print("🚨 TEST MATCH START", flush=True)
     print("🧪 TEST A: CONTENT GESETZT", flush=True)
 
     print(
@@ -3491,6 +3492,7 @@ Wendet euch an die Admins 🙂"""
         
     print("🧪 TEST 15 VOR MATCH PARSE", flush=True)
     print("🧪 TEST C: MATCH PARSER ERREICHT", flush=True)
+    print("🚨 TEST VOR MATCH PARSE", flush=True)
     # =========================
     # MATCH PARSE
     # =========================
