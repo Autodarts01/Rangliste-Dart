@@ -3525,7 +3525,7 @@ Wendet euch an die Admins 🙂"""
         spielabsprachen = await client.fetch_channel(LOG_CHANNEL_ID)
         print("🧪 CHANNEL GEFUNDEN", flush=True)
 
-        for player in [p1, p2]:
+    for player in [p1, p2]:
         print(f"🧪 MEILENSTEIN CHECK: {player}", flush=True)
         await check_meilensteine(player, spielabsprachen)
 
