@@ -3617,8 +3617,9 @@ async def on_message(message):
         return
         
     print("🧪 MATCH PARSER ERREICHT", flush=True)
-
+    print("🧪 TEST 15 VOR resolve_names", flush=True)
     result = resolve_names(message, content)
+    print("🧪 TEST 16 resolve_names ERGEBNIS:", parsed, flush=True)
 
     if not result:
         await message.channel.send("Selbst die KI schüttelt den Kopf 🤖\n❌ Format: Spieler A vs Spieler B 3:0")
