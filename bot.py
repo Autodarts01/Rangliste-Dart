@@ -3227,18 +3227,18 @@ async def on_message(message):
                 )
                 return
 
-        msg = f"🎯 **Naechste Ziele fuer {spieler}:**\n\n"
+            msg = f"🎯 **Naechste Ziele fuer {spieler}:**\n\n"
 
-        # =========================
-        # Spiele-Meilensteine
-        # =========================
+            # =========================
+            # Spiele-Meilensteine
+            # =========================
 
-        naechstes_spiel_ziel = None
+            naechstes_spiel_ziel = None
 
-        for m in sorted(SPIELE_MEILENSTEINE.keys()):
-            if s["spiele"] < m:
-                naechstes_spiel_ziel = m
-                break
+            for m in sorted(SPIELE_MEILENSTEINE.keys()):
+                if s["spiele"] < m:
+                    naechstes_spiel_ziel = m
+                    break
 
         if naechstes_spiel_ziel:
             msg += (
