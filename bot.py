@@ -3240,38 +3240,34 @@ async def on_message(message):
                     naechstes_spiel_ziel = m
                     break
 
-        if naechstes_spiel_ziel:
-            msg += (
-                f"🎮 Spiele: noch **"
-                f"{naechstes_spiel_ziel - s['spiele']}** "
-                f"bis zum {naechstes_spiel_ziel}-Spiele-Meilenstein\n"
-            )
-        else:
-            msg += (
-                "🎮 Spiele: Alle Meilensteine erreicht! 👑\n"
-            )
+                    if naechstes_spiel_ziel:
+                msg += (
+                    f"🎮 Spiele: noch **"
+                    f"{naechstes_spiel_ziel - s['spiele']}** "
+                    f"bis zum {naechstes_spiel_ziel}-Spiele-Meilenstein\n"
+                )
+            else:
+                msg += "🎮 Spiele: Alle Meilensteine erreicht! 👑\n"
 
-        # =========================
-        # Siege-Meilensteine
-        # =========================
+            # =========================
+            # Siege-Meilensteine
+            # =========================
 
-        naechstes_sieg_ziel = None
+            naechstes_sieg_ziel = None
 
-        for m in sorted(SIEGE_MEILENSTEINE.keys()):
-            if s["siege"] < m:
-                naechstes_sieg_ziel = m
-                break
+            for m in sorted(SIEGE_MEILENSTEINE.keys()):
+                if s["siege"] < m:
+                    naechstes_sieg_ziel = m
+                    break
 
-        if naechstes_sieg_ziel:
-            msg += (
-                f"🏆 Siege: noch **"
-                f"{naechstes_sieg_ziel - s['siege']}** "
-                f"bis zum {naechstes_sieg_ziel}-Siege-Meilenstein\n"
-            )
-        else:
-            msg += (
-                "🏆 Siege: Alle Meilensteine erreicht! 👑\n"
-            )
+            if naechstes_sieg_ziel:
+                msg += (
+                    f"🏆 Siege: noch **"
+                    f"{naechstes_sieg_ziel - s['siege']}** "
+                    f"bis zum {naechstes_sieg_ziel}-Siege-Meilenstein\n"
+                )
+            else:
+                msg += "🏆 Siege: Alle Meilensteine erreicht! 👑\n"
 
         # =========================
         # Aktueller Rang
