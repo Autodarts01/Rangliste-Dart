@@ -2379,6 +2379,31 @@ async def on_message(message):
     global lanzi_insult_index
     if message.author.bot:
         return
+        
+    # ==========================================
+    # 😈 SAM THE GAMBLER → WILLER
+    # Nur in #Plauderecke
+    # ==========================================
+
+    if (
+        message.channel.name.lower() == "plauderecke"
+        and message.author.display_name.lower() == "sam the gambler"
+        and any(
+            user.display_name.lower() == "willer"
+            for user in message.mentions
+        )
+    ):
+        print("😈 SAM → WILLER ERKANNT", flush=True)
+
+        await message.channel.send(
+            "Sam The Gambler halt die Fresse, Willer will nichts hören von dir"
+        )
+        return
+
+    print(
+        f"🧪 NACH BOT CHECK: {message.channel.name}",
+        flush=True
+    )
     print(
         f"🧪 NACH BOT CHECK: {message.channel.name}",
         flush=True
