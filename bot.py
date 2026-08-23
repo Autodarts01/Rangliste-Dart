@@ -2389,11 +2389,11 @@ async def on_message(message):
         message.channel.name.lower() == "plauderecke"
         and message.author.display_name.lower() == "sam the gambler"
         and any(
-            user.display_name.lower() == "willer"
+            user.display_name.lower() == "willer90"
             for user in message.mentions
         )
     ):
-        print("😈 SAM → WILLER ERKANNT", flush=True)
+        print("😈 SAM → WILLER90 ERKANNT", flush=True)
 
         await message.channel.send(
             "Sam The Gambler halt die Fresse, Willer will nichts hören von dir"
