@@ -2259,27 +2259,27 @@ async def verarbeite_180(message):
 
 
 # ==========================================
-# 🔄 /180-RESET
+# 🎯 /180-RESET
+# Setzt ALLE 180-Statistiken auf 0
 # ==========================================
 
 @tree.command(
     name="180-reset",
-    description="Setzt die 180-Statistik auf 0"
+    description="Setzt die komplette 180-Statistik auf 0"
 )
 async def reset_180(
     interaction: discord.Interaction
 ):
 
+    # Nur Admins
     if not any(
         role.id in ADMIN_ROLE_IDS
         for role in interaction.user.roles
     ):
-
         await interaction.response.send_message(
             "❌ Keine Berechtigung.",
             ephemeral=True
         )
-
         return
 
     await interaction.response.defer(
@@ -2288,9 +2288,10 @@ async def reset_180(
 
     try:
 
-        # Stats komplett zurücksetzen
+        # Alle 180-Stats löschen
         speichere_180_stats({})
 
+        # Alten Statistik-Post löschen
         channel = discord.utils.get(
             client.get_all_channels(),
             name=MANFRED_180_STATISTIK_CHANNEL
@@ -2304,16 +2305,13 @@ async def reset_180(
 
                 try:
 
-                    alte_message = (
-                        await channel.fetch_message(
-                            int(alte_id)
-                        )
+                    alte_message = await channel.fetch_message(
+                        int(alte_id)
                     )
 
                     await alte_message.delete()
 
                 except discord.NotFound:
-
                     pass
 
                 except discord.Forbidden:
@@ -2328,20 +2326,18 @@ async def reset_180(
         if os.path.exists(
             MANFRED_180_MESSAGE_FILE
         ):
-
             os.remove(
                 MANFRED_180_MESSAGE_FILE
             )
 
         await interaction.followup.send(
-            "🎯 **180-Statistik wurde auf 0 gesetzt.**\n\n"
-            "Die nächste 180 erstellt wieder "
-            "die neue Liste in #statistiken.",
+            "🎯 **180-Statistik wurde komplett zurückgesetzt.**\n\n"
+            "Alle Spieler stehen wieder bei **0×180**.",
             ephemeral=True
         )
 
         print(
-            "🔄 180-Statistik wurde zurückgesetzt.",
+            "🔄 KOMPLETTER 180-RESET durchgeführt.",
             flush=True
         )
 
@@ -2349,6 +2345,124 @@ async def reset_180(
 
         print(
             f"❌ Fehler bei /180-reset: {repr(e)}",
+            flush=True
+        )
+
+        await interaction.followup.send(
+            f"❌ **Fehler:**\n```{e}```",
+            ephemeral=True
+        )
+
+
+# ==========================================
+# 🎯 /1x180-loeschen @Spieler
+# Löscht genau 1×180 bei einem Spieler
+# ==========================================
+
+@tree.command(
+    name="1x180-loeschen",
+    description="Löscht genau 1x180 bei einem Spieler"
+)
+@app_commands.describe(
+    spieler="Spieler, bei dem 1x180 gelöscht werden soll"
+)
+async def loesche_1x180(
+    interaction: discord.Interaction,
+    spieler: discord.Member
+):
+
+    # Nur Admins
+    if not any(
+        role.id in ADMIN_ROLE_IDS
+        for role in interaction.user.roles
+    ):
+        await interaction.response.send_message(
+            "❌ Keine Berechtigung.",
+            ephemeral=True
+        )
+        return
+
+    await interaction.response.defer(
+        ephemeral=True
+    )
+
+    try:
+
+        stats = lade_180_stats()
+
+        spieler_name = spieler.display_name
+
+        # Spieler suchen
+        vorhandener_name = None
+
+        for name in stats:
+
+            if normalize(name) == normalize(
+                spieler_name
+            ):
+                vorhandener_name = name
+                break
+
+        # Spieler hat keine 180
+        if vorhandener_name is None:
+
+            await interaction.followup.send(
+                f"❌ **{spieler_name}** hat aktuell "
+                f"keine gespeicherte 180.",
+                ephemeral=True
+            )
+
+            return
+
+        # Nicht unter 0 gehen
+        if stats[vorhandener_name] <= 0:
+
+            await interaction.followup.send(
+                f"❌ **{spieler_name}** steht bereits bei "
+                f"**0×180**.",
+                ephemeral=True
+            )
+
+            return
+
+        # Genau 1 abziehen
+        stats[vorhandener_name] -= 1
+
+        # Bei 0 Namen aus der Statistik entfernen
+        if stats[vorhandener_name] <= 0:
+
+            del stats[vorhandener_name]
+
+        # Speichern
+        speichere_180_stats(stats)
+
+        # Statistik-Post aktualisieren
+        await aktualisiere_180_statistik()
+
+        neuer_stand = stats.get(
+            vorhandener_name,
+            0
+        )
+
+        await interaction.followup.send(
+            f"🗑️ **1×180 gelöscht!**\n\n"
+            f"🎯 Spieler: **{spieler_name}**\n"
+            f"📊 Neuer Stand: **{neuer_stand}×180**",
+            ephemeral=True
+        )
+
+        print(
+            f"🗑️ /1x180-loeschen: "
+            f"{spieler_name} -1 | "
+            f"Neuer Stand: {neuer_stand}",
+            flush=True
+        )
+
+    except Exception as e:
+
+        print(
+            f"❌ Fehler bei /1x180-loeschen: "
+            f"{repr(e)}",
             flush=True
         )
 
