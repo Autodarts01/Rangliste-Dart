@@ -3216,6 +3216,7 @@ async def on_message(message):
 /test-monatsreset → Monatsreset testen
 @Spieler 1x180 → 180 wird erkannt
 /180-reset → Alle 180-Statistiken auf 0 setzen
+/1x180-loeschen @spieler → 1x180 gelöscht von spieler
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 👥 SPIELER-VERWALTUNG
