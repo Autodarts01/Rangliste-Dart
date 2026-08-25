@@ -2494,7 +2494,66 @@ async def on_message(message):
     if message.author.bot:
         return
         
-    
+# ==========================================
+# 😈 WILLER90 ↔ SAM THE GAMBLER
+# Nur in #Plauderecke
+# ==========================================
+
+if message.channel.name.lower() == "plauderecke":
+
+    # ==========================================
+    # 😈 WILLER90 → SAM THE GAMBLER
+    # ==========================================
+
+    if (
+        message.author.display_name.lower() == "willer90"
+        and any(
+            user.display_name.lower() == "sam the gambler"
+            for user in message.mentions
+        )
+    ):
+
+        print(
+            "😈 WILLER90 → SAM THE GAMBLER ERKANNT",
+            flush=True
+        )
+
+        sprueche = [
+            "Wenn Dummheit WLAN wäre, hättest du Vollanschluss.",
+            "Willer90 Große Fresse für so wenig Inhalt.",
+            "Sam The Gambler würde dir ja antworten, aber du bist offensichtlich schon überfordert mit einem Satz."
+        ]
+
+        import random
+
+        await message.channel.send(
+            random.choice(sprueche)
+        )
+
+        # KEIN return!
+
+    # ==========================================
+    # 😈 SAM THE GAMBLER → WILLER90
+    # ==========================================
+
+    elif (
+        message.author.display_name.lower() == "sam the gambler"
+        and any(
+            user.display_name.lower() == "willer90"
+            for user in message.mentions
+        )
+    ):
+
+        print(
+            "😈 SAM THE GAMBLER → WILLER90 ERKANNT",
+            flush=True
+        )
+
+        await message.channel.send(
+            "https://klipy.com/gifs/germany-stefan-hentschel"
+        )
+
+        # KEIN return!
 
     print(
         f"🧪 NACH BOT CHECK: {message.channel.name}",
