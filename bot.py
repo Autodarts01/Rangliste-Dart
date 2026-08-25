@@ -3878,22 +3878,6 @@ Wendet euch an die Admins 🙂"""
         flush=True
     )
 
-    # =========================
-    # MONATSLIMIT CHECK (max 15 gegen denselben)
-    # =========================
-    monthly_count = get_monthly_count(p1, p2)
-    MAX_MONTHLY = 15
-
-    if monthly_count >= MAX_MONTHLY:
-        await message.channel.send(
-            f"❌ **Monatslimit erreicht!** {p1} und {p2} haben bereits {MAX_MONTHLY}x diesen Monat gespielt. Sucht euch andere Gegner! 😄"
-        )
-        return
-
-    if monthly_count == MAX_MONTHLY - 2:
-        await message.channel.send(f"⚠️ Noch 2 Spiele diesen Monat zwischen **{p1}** und **{p2}**!")
-    elif monthly_count == MAX_MONTHLY - 1:
-        await message.channel.send(f"⚠️ Letztes Spiel diesen Monat zwischen **{p1}** und **{p2}**!")
 
     # =========================
     # LIMIT CHECK
