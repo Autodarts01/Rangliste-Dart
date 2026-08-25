@@ -2512,7 +2512,6 @@ if message.channel.name.lower() == "plauderecke":
             for user in message.mentions
         )
     ):
-
         print(
             "😈 WILLER90 → SAM THE GAMBLER ERKANNT",
             flush=True
@@ -2523,8 +2522,6 @@ if message.channel.name.lower() == "plauderecke":
             "Willer90 Große Fresse für so wenig Inhalt.",
             "Sam The Gambler würde dir ja antworten, aber du bist offensichtlich schon überfordert mit einem Satz."
         ]
-
-        import random
 
         await message.channel.send(
             random.choice(sprueche)
@@ -2543,7 +2540,6 @@ if message.channel.name.lower() == "plauderecke":
             for user in message.mentions
         )
     ):
-
         print(
             "😈 SAM THE GAMBLER → WILLER90 ERKANNT",
             flush=True
