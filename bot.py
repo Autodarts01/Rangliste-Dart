@@ -2151,6 +2151,7 @@ async def loesche_alten_180_post(channel):
 
 # ==========================================
 # 📢 STATISTIK AKTUALISIEREN
+# Bestehende Liste bearbeiten statt löschen
 # ==========================================
 
 async def aktualisiere_180_statistik():
@@ -2171,29 +2172,69 @@ async def aktualisiere_180_statistik():
 
             return False
 
-        # Alten Post löschen
-        await loesche_alten_180_post(
-            channel
-        )
-
         stats = lade_180_stats()
 
         text = erstelle_180_liste(
             stats
         )
 
-        # Neuen Post erstellen
+        alte_id = lade_180_message_id()
+
+        # ==========================================
+        # 📝 EXISTIERENDE LISTE AKTUALISIEREN
+        # ==========================================
+
+        if alte_id:
+
+            try:
+
+                alte_message = await channel.fetch_message(
+                    int(alte_id)
+                )
+
+                await alte_message.edit(
+                    content=text
+                )
+
+                print(
+                    "🎯 Bestehende 180-Liste aktualisiert.",
+                    flush=True
+                )
+
+                return True
+
+            except discord.NotFound:
+
+                print(
+                    "⚠️ Alte 180-Liste nicht gefunden – "
+                    "erstelle eine neue.",
+                    flush=True
+                )
+
+            except discord.Forbidden:
+
+                print(
+                    "❌ Keine Berechtigung zum Bearbeiten "
+                    "des 180-Posts.",
+                    flush=True
+                )
+
+                return False
+
+        # ==========================================
+        # 🆕 NOCH KEINE LISTE VORHANDEN
+        # ==========================================
+
         message = await channel.send(
             text
         )
 
-        # ID speichern
         speichere_180_message_id(
             message.id
         )
 
         print(
-            "🎯 180-Liste in #statistiken aktualisiert.",
+            "🎯 Neue 180-Liste in #statistiken erstellt.",
             flush=True
         )
 
