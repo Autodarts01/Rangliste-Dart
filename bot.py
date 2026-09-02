@@ -3953,10 +3953,25 @@ Wendet euch an die Admins 🙂"""
             legs_a, legs_b = s1, s2
 
         new_row_data = [p1, p2, legs_a, legs_b, p2, p1, winner]
-        sheet.append_row(new_row_data)
+        # Google-Sheets-Aufrufe aus dem Discord-Event-Loop auslagern,
+        # damit der Discord-Heartbeat nicht blockiert.
+        await asyncio.to_thread(
+            sheet.append_row,
+            new_row_data
+        )
+
         # Datum in Spalte H eintragen
-        last_row = len(sheet.get_all_values())
-        sheet.update_cell(last_row, 8, datetime.now().strftime("%d.%m.%Y"))
+        last_row = await asyncio.to_thread(
+            lambda: len(sheet.get_all_values())
+        )
+
+        await asyncio.to_thread(
+            sheet.update_cell,
+            last_row,
+            8,
+            datetime.now().strftime("%d.%m.%Y")
+        )
+
         print("🧪 SHEETS SPEICHERN FERTIG", flush=True)
     except Exception as e:
         print("❌ SHEETS ERROR:", e)
