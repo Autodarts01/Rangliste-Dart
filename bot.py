@@ -2517,20 +2517,33 @@ async def loesche_1x180(
 # =========================
 @client.event
 async def on_message(message):
-    print(
-    f"🔥 EVENT START ID={message.id} | "
-    f"CONTENT={message.content}",
-    flush=True
-)
-    print("🔥 ON_MESSAGE VERSION NEU", flush=True)
+
+    # ==========================================
+    # 🤖 BOT-NACHRICHTEN IGNORIEREN
+    # ==========================================
+    if message.author.bot:
+        return
 
     print(
-        f"🧪 ON_MESSAGE START: author={message.author} | "
+        f"🔥 EVENT START ID={message.id} | "
+        f"CONTENT={message.content}",
+        flush=True
+    )
+
+    print(
+        f"🔥 ON_MESSAGE VERSION NEU",
+        flush=True
+    )
+
+    print(
+        f"🧪 ON_MESSAGE START: "
+        f"author={message.author} | "
         f"bot={message.author.bot} | "
         f"channel={message.channel.name} | "
         f"content={message.content}",
         flush=True
     )
+
     global lanzi_insult_index
     if message.author.bot:
         return
