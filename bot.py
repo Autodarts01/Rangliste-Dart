@@ -2259,6 +2259,12 @@ async def verarbeite_180(message):
 
     try:
 
+        # ==========================================
+        # 🤖 BOT-NACHRICHTEN IGNORIEREN
+        # ==========================================
+        if message.author.bot:
+            return False
+
         ergebnis = ermittle_180(
             message
         )
