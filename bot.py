@@ -2418,7 +2418,10 @@ async def loesche_1x180(
     spieler: discord.Member
 ):
 
-    # Nur Admins
+    # ==========================================
+    # 🔐 ADMIN CHECK
+    # ==========================================
+
     if not any(
         role.id in ADMIN_ROLE_IDS
         for role in interaction.user.roles
@@ -2435,86 +2438,141 @@ async def loesche_1x180(
 
     try:
 
+        # ==========================================
+        # 📊 STATS LADEN
+        # ==========================================
+
         stats = lade_180_stats()
 
         spieler_name = spieler.display_name
 
-        # Spieler suchen
+        print(
+            f"🗑️ 180-DELETE START: "
+            f"Spieler={spieler_name} | "
+            f"Stats={stats}",
+            flush=True
+        )
+
+        # ==========================================
+        # 🔎 SPIELER SUCHEN
+        # ==========================================
+
         vorhandener_name = None
 
-        for name in stats:
+        for name in stats.keys():
 
-            if normalize(name) == normalize(
-                spieler_name
+            if normalize(str(name)) == normalize(
+                str(spieler_name)
             ):
                 vorhandener_name = name
                 break
 
-        # Spieler hat keine 180
+        # ==========================================
+        # ❌ NICHT GEFUNDEN
+        # ==========================================
+
         if vorhandener_name is None:
 
             await interaction.followup.send(
-                f"❌ **{spieler_name}** hat aktuell "
-                f"keine gespeicherte 180.",
+                f"❌ **{spieler_name}** wurde in der "
+                f"180-Liste nicht gefunden.\n\n"
+                f"📊 Gespeicherte Spieler:\n"
+                + (
+                    "\n".join(
+                        f"• {name}: {anzahl}×180"
+                        for name, anzahl in stats.items()
+                    )
+                    if stats
+                    else "Keine Einträge"
+                ),
                 ephemeral=True
             )
 
             return
 
-        # Nicht unter 0 gehen
-        if stats[vorhandener_name] <= 0:
+        aktuelle_180 = int(
+            stats[vorhandener_name]
+        )
+
+        # ==========================================
+        # ❌ BEREITS 0
+        # ==========================================
+
+        if aktuelle_180 <= 0:
 
             await interaction.followup.send(
-                f"❌ **{spieler_name}** steht bereits bei "
+                f"❌ **{spieler_name}** hat bereits "
                 f"**0×180**.",
                 ephemeral=True
             )
 
             return
 
-        # Genau 1 abziehen
-        stats[vorhandener_name] -= 1
+        # ==========================================
+        # ➖ GENAU 1 ABZIEHEN
+        # ==========================================
 
-        # Bei 0 Namen aus der Statistik entfernen
-        if stats[vorhandener_name] <= 0:
+        neuer_stand = aktuelle_180 - 1
+
+        if neuer_stand <= 0:
 
             del stats[vorhandener_name]
 
-        # Speichern
+            neuer_stand = 0
+
+        else:
+
+            stats[vorhandener_name] = neuer_stand
+
+        # ==========================================
+        # 💾 SOFORT SPEICHERN
+        # ==========================================
+
         speichere_180_stats(stats)
 
-        # Statistik-Post aktualisieren
-        await aktualisiere_180_statistik()
-
-        neuer_stand = stats.get(
-            vorhandener_name,
-            0
+        print(
+            f"🗑️ 180 DELETE ERFOLGREICH: "
+            f"{spieler_name} | "
+            f"{aktuelle_180} → {neuer_stand}",
+            flush=True
         )
+
+        # ==========================================
+        # 📊 LISTE AKTUALISIEREN
+        # ==========================================
+
+        erfolg = await aktualisiere_180_statistik()
+
+        if not erfolg:
+
+            print(
+                "⚠️ 180-Statistik konnte nach "
+                "dem Löschen nicht aktualisiert werden.",
+                flush=True
+            )
+
+        # ==========================================
+        # ✅ BESTÄTIGUNG
+        # ==========================================
 
         await interaction.followup.send(
             f"🗑️ **1×180 gelöscht!**\n\n"
             f"🎯 Spieler: **{spieler_name}**\n"
-            f"📊 Neuer Stand: **{neuer_stand}×180**",
+            f"📊 **{aktuelle_180}×180 → "
+            f"{neuer_stand}×180**",
             ephemeral=True
-        )
-
-        print(
-            f"🗑️ /1x180-loeschen: "
-            f"{spieler_name} -1 | "
-            f"Neuer Stand: {neuer_stand}",
-            flush=True
         )
 
     except Exception as e:
 
         print(
-            f"❌ Fehler bei /1x180-loeschen: "
-            f"{repr(e)}",
+            f"❌ 180 DELETE ERROR: {repr(e)}",
             flush=True
         )
 
         await interaction.followup.send(
-            f"❌ **Fehler:**\n```{e}```",
+            f"❌ **Fehler beim Löschen:**\n"
+            f"```{e}```",
             ephemeral=True
         )
 
