@@ -2016,31 +2016,37 @@ def ermittle_180(message):
 
     try:
 
+        # 🤖 BOT-NACHRICHTEN ignorieren
+        if message.author.bot:
+            return None
+
+        text = message.content.lower().strip()
+
+        # 🚫 SLASH-COMMANDS niemals als 180 zählen
+        if text.startswith("/"):
+            return None
+
+        # 👤 Keine Erwähnung = keine 180
         if not message.mentions:
             return None
 
-        text = message.content.lower()
-
-        if "180" not in text:
+        # 🎯 Nur echtes "180" erkennen
+        if not re.search(r"\b180\b", text):
             return None
 
         spieler = message.mentions[0].display_name
 
-        # @Spieler 3x180
+        # 🎯 @Spieler 3x180
         match = re.search(
             r"(\d+)\s*x\s*180\b",
             text
         )
 
         if match:
-
-            anzahl = int(
-                match.group(1)
-            )
+            anzahl = int(match.group(1))
 
         else:
-
-            # @Spieler 180
+            # 🎯 @Spieler 180
             anzahl = 1
 
         if anzahl <= 0:
@@ -2051,7 +2057,8 @@ def ermittle_180(message):
     except Exception as e:
 
         print(
-            f"❌ Fehler beim Erkennen der 180: {repr(e)}",
+            f"❌ Fehler beim Erkennen der 180: "
+            f"{repr(e)}",
             flush=True
         )
 
