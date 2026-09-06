@@ -2725,7 +2725,7 @@ async def on_message(message):
         flush=True
     )
     print("🧪 TEST 14 VOR COMMANDS", flush=True)
-        print("🧪 TEST 14 VOR COMMANDS", flush=True)
+    print("🧪 TEST 14 VOR COMMANDS", flush=True)
 
     # ==========================================
     # 🎯 MANFRED 180 TRACKER
