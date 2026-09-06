@@ -2442,11 +2442,8 @@ async def reset_180(
 
 # ==========================================
 # 🎯 /1x180-loeschen @Spieler
-# LÖSCHT GENAU 1×180
+# Löscht genau 1×180 bei einem Spieler
 # ==========================================
-
-STATISTIKEN_CHANNEL_ID = 1471636845841354824
-
 
 @tree.command(
     name="1x180-loeschen",
@@ -2480,14 +2477,8 @@ async def loesche_1x180(
 
     try:
 
-        print(
-            f"🗑️ /1x180-loeschen gestartet: "
-            f"{spieler.display_name}",
-            flush=True
-        )
-
         # ==========================================
-        # 📊 STATS LADEN
+        # 📊 AKTUELLE STATS LADEN
         # ==========================================
 
         stats = lade_180_stats()
@@ -2495,7 +2486,8 @@ async def loesche_1x180(
         spieler_name = spieler.display_name
 
         print(
-            f"🎯 180-STATS VORHER: {stats}",
+            f"🗑️ 180 LÖSCHEN START: "
+            f"{spieler_name}",
             flush=True
         )
 
@@ -2505,7 +2497,7 @@ async def loesche_1x180(
 
         vorhandener_name = None
 
-        for name in list(stats.keys()):
+        for name in stats.keys():
 
             if normalize(name) == normalize(
                 spieler_name
@@ -2513,15 +2505,11 @@ async def loesche_1x180(
                 vorhandener_name = name
                 break
 
-        # ==========================================
-        # ❌ NICHT GEFUNDEN
-        # ==========================================
-
         if vorhandener_name is None:
 
             await interaction.followup.send(
-                f"❌ **{spieler_name}** hat keine "
-                f"gespeicherte 180.",
+                f"❌ **{spieler_name}** hat "
+                f"keine gespeicherte 180.",
                 ephemeral=True
             )
 
@@ -2533,15 +2521,15 @@ async def loesche_1x180(
 
             return
 
-        aktueller_stand = int(
+        # ==========================================
+        # 🔢 AKTUELLER STAND
+        # ==========================================
+
+        alter_stand = int(
             stats[vorhandener_name]
         )
 
-        # ==========================================
-        # ❌ BEREITS 0
-        # ==========================================
-
-        if aktueller_stand <= 0:
+        if alter_stand <= 0:
 
             await interaction.followup.send(
                 f"❌ **{spieler_name}** steht bereits "
@@ -2555,9 +2543,9 @@ async def loesche_1x180(
         # ➖ GENAU 1 ABZIEHEN
         # ==========================================
 
-        neuer_stand = aktueller_stand - 1
+        neuer_stand = alter_stand - 1
 
-        if neuer_stand <= 0:
+        if neuer_stand == 0:
 
             del stats[vorhandener_name]
 
@@ -2566,7 +2554,7 @@ async def loesche_1x180(
             stats[vorhandener_name] = neuer_stand
 
         # ==========================================
-        # 💾 SPEICHERN
+        # 💾 STATS SPEICHERN
         # ==========================================
 
         speichere_180_stats(
@@ -2576,105 +2564,21 @@ async def loesche_1x180(
         print(
             f"🗑️ 180 GELÖSCHT: "
             f"{spieler_name} "
-            f"{aktueller_stand} -> {neuer_stand}",
+            f"{alter_stand} -> {neuer_stand}",
             flush=True
         )
 
         # ==========================================
-        # 📊 STATISTIK-CHANNEL HOLEN
+        # 📊 STATISTIK-TABELLE AKTUALISIEREN
         # ==========================================
 
-        channel = client.get_channel(
-            STATISTIKEN_CHANNEL_ID
+        aktualisiert = await aktualisiere_180_statistik()
+
+        print(
+            f"📊 180-TABELLE AKTUALISIERT: "
+            f"{aktualisiert}",
+            flush=True
         )
-
-        if channel is None:
-
-            print(
-                "❌ #statistiken über ID nicht gefunden.",
-                flush=True
-            )
-
-            await interaction.followup.send(
-                f"⚠️ **1×180 wurde gelöscht.**\n"
-                f"🎯 Neuer Stand: **{neuer_stand}×180**\n\n"
-                f"❌ Aber #statistiken konnte nicht "
-                f"gefunden werden.",
-                ephemeral=True
-            )
-
-            return
-
-        # ==========================================
-        # 📋 NEUE LISTE ERSTELLEN
-        # ==========================================
-
-        text = erstelle_180_liste(
-            stats
-        )
-
-        # ==========================================
-        # 🔎 ALTE MANFRED-LISTE SUCHEN
-        # ==========================================
-
-        alte_id = lade_180_message_id()
-
-        aktualisiert = False
-
-        if alte_id:
-
-            try:
-
-                alte_message = await channel.fetch_message(
-                    int(alte_id)
-                )
-
-                await alte_message.edit(
-                    content=text
-                )
-
-                aktualisiert = True
-
-                print(
-                    "✅ Bestehende 180-Liste "
-                    "direkt aktualisiert.",
-                    flush=True
-                )
-
-            except discord.NotFound:
-
-                print(
-                    "⚠️ Alte 180-Nachricht nicht gefunden.",
-                    flush=True
-                )
-
-            except discord.Forbidden:
-
-                print(
-                    "❌ Keine Berechtigung zum "
-                    "Bearbeiten der 180-Nachricht.",
-                    flush=True
-                )
-
-        # ==========================================
-        # 🆕 FALLS ALTE LISTE NICHT EXISTIERT
-        # ==========================================
-
-        if not aktualisiert:
-
-            neue_message = await channel.send(
-                text
-            )
-
-            speichere_180_message_id(
-                neue_message.id
-            )
-
-            print(
-                f"🆕 Neue 180-Liste erstellt: "
-                f"{neue_message.id}",
-                flush=True
-            )
 
         # ==========================================
         # ✅ ERFOLG
@@ -2683,16 +2587,10 @@ async def loesche_1x180(
         await interaction.followup.send(
             f"🗑️ **1×180 gelöscht!**\n\n"
             f"🎯 Spieler: **{spieler_name}**\n"
-            f"📊 Alter Stand: **{aktueller_stand}×180**\n"
-            f"📊 Neuer Stand: **{neuer_stand}×180**\n"
-            f"✅ #statistiken wurde aktualisiert.",
+            f"📊 Alter Stand: **{alter_stand}×180**\n"
+            f"📊 Neuer Stand: **{neuer_stand}×180**\n\n"
+            f"✅ Statistik-Tabelle wurde aktualisiert.",
             ephemeral=True
-        )
-
-        print(
-            f"✅ /1x180-loeschen KOMPLETT FERTIG: "
-            f"{spieler_name} -> {neuer_stand}",
-            flush=True
         )
 
     except Exception as e:
@@ -2703,11 +2601,17 @@ async def loesche_1x180(
             flush=True
         )
 
-        await interaction.followup.send(
-            f"❌ **Fehler beim Löschen:**\n"
-            f"```{e}```",
-            ephemeral=True
-        )
+        try:
+
+            await interaction.followup.send(
+                f"❌ **Fehler beim Löschen:**\n"
+                f"```{e}```",
+                ephemeral=True
+            )
+
+        except Exception:
+
+            pass
 
 # =========================
 # MESSAGE HANDLER
@@ -2821,23 +2725,37 @@ async def on_message(message):
         flush=True
     )
     print("🧪 TEST 14 VOR COMMANDS", flush=True)
-    # ==========================================
-    # 🎯 MANFRED 180 TRACKER
-    # ==========================================
+# ==========================================
+# 🎯 MANFRED 180 TRACKER
+# ==========================================
+
+print(
+    f"🧪 180 CHECK: "
+    f"channel={message.channel.name!r} | "
+    f"MANFRED_180_ERGEBNIS_CHANNEL={MANFRED_180_ERGEBNIS_CHANNEL!r}",
+    flush=True
+)
+
+if message.channel.name == MANFRED_180_ERGEBNIS_CHANNEL:
 
     print(
-        f"🧪 180 CHECK: "
-        f"channel={message.channel.name!r} | "
-        f"MANFRED_180_ERGEBNIS_CHANNEL={MANFRED_180_ERGEBNIS_CHANNEL!r}",
+        "🚨 180 BLOCK ERKANNT",
         flush=True
     )
 
-    if message.channel.name == MANFRED_180_ERGEBNIS_CHANNEL:
+    # ==========================================
+    # 🚫 SLASH-BEFEHL NICHT ALS 180 VERARBEITEN
+    # ==========================================
+
+    if message.content.lower().startswith("/1x180-loeschen"):
 
         print(
-            "🚨 180 BLOCK ERKANNT",
+            "🚫 /1x180-loeschen erkannt - "
+            "180-Tracker wird übersprungen.",
             flush=True
         )
+
+    else:
 
         await verarbeite_180(message)
 
@@ -2846,7 +2764,7 @@ async def on_message(message):
             flush=True
         )
 
-    # KEIN return!
+# KEIN return!
     # =========================
     # Stats-Commands auch im Stats-Channel erlauben
     # =========================
