@@ -2725,46 +2725,59 @@ async def on_message(message):
         flush=True
     )
     print("🧪 TEST 14 VOR COMMANDS", flush=True)
-# ==========================================
-# 🎯 MANFRED 180 TRACKER
-# ==========================================
+        print("🧪 TEST 14 VOR COMMANDS", flush=True)
 
-print(
-    f"🧪 180 CHECK: "
-    f"channel={message.channel.name!r} | "
-    f"MANFRED_180_ERGEBNIS_CHANNEL={MANFRED_180_ERGEBNIS_CHANNEL!r}",
-    flush=True
-)
-
-if message.channel.name == MANFRED_180_ERGEBNIS_CHANNEL:
+    # ==========================================
+    # 🎯 MANFRED 180 TRACKER
+    # ==========================================
 
     print(
-        "🚨 180 BLOCK ERKANNT",
+        f"🧪 180 CHECK: "
+        f"channel={message.channel.name!r} | "
+        f"MANFRED_180_ERGEBNIS_CHANNEL={MANFRED_180_ERGEBNIS_CHANNEL!r}",
         flush=True
     )
 
-    # ==========================================
-    # 🚫 SLASH-BEFEHL NICHT ALS 180 VERARBEITEN
-    # ==========================================
-
-    if message.content.lower().startswith("/1x180-loeschen"):
+    if message.channel.name == MANFRED_180_ERGEBNIS_CHANNEL:
 
         print(
-            "🚫 /1x180-loeschen erkannt - "
-            "180-Tracker wird übersprungen.",
+            "🚨 180 BLOCK ERKANNT",
             flush=True
         )
 
-    else:
+        # ==========================================
+        # 🚫 SLASH-BEFEHL NICHT ALS 180 VERARBEITEN
+        # ==========================================
 
-        await verarbeite_180(message)
+        if message.content.lower().startswith("/1x180-loeschen"):
 
-        print(
-            "🚨 180 BLOCK FERTIG",
-            flush=True
-        )
+            print(
+                "🚫 /1x180-loeschen erkannt - "
+                "180-Tracker wird übersprungen.",
+                flush=True
+            )
 
-# KEIN return!
+        else:
+
+            await verarbeite_180(message)
+
+            print(
+                "🚨 180 BLOCK FERTIG",
+                flush=True
+            )
+
+    # KEIN return!
+
+    # =========================
+    # Stats-Commands auch im Stats-Channel erlauben
+    # =========================
+
+    is_stats_channel = message.channel.id == STATS_CHANNEL_ID
+    is_main_channel = message.channel.name == CHANNEL_NAME
+    is_spielabsprachen = message.channel.id == LOG_CHANNEL_ID
+    is_spieler_info = message.channel.id == SPIELER_INFO_CHANNEL_ID
+    is_abwesenheit = message.channel.id == ABWESENHEIT_CHANNEL_ID
+    is_geburtstage = message.channel.id == GEBURTSTAGE_CHANNEL_ID
     # =========================
     # Stats-Commands auch im Stats-Channel erlauben
     # =========================
