@@ -2410,8 +2410,11 @@ async def reset_180(
 
 # ==========================================
 # 🎯 /1x180-loeschen @Spieler
-# Löscht genau 1×180 bei einem Spieler
+# LÖSCHT GENAU 1×180
 # ==========================================
+
+STATISTIKEN_CHANNEL_ID = 1471636845841354824
+
 
 @tree.command(
     name="1x180-loeschen",
@@ -2424,14 +2427,6 @@ async def loesche_1x180(
     interaction: discord.Interaction,
     spieler: discord.Member
 ):
-
-    print(
-        f"🗑️ 180-DELETE START | "
-        f"Admin={interaction.user} | "
-        f"Ziel={spieler} | "
-        f"ID={spieler.id}",
-        flush=True
-    )
 
     # ==========================================
     # 🔐 ADMIN CHECK
@@ -2453,61 +2448,38 @@ async def loesche_1x180(
 
     try:
 
+        print(
+            f"🗑️ /1x180-loeschen gestartet: "
+            f"{spieler.display_name}",
+            flush=True
+        )
+
         # ==========================================
-        # 📂 STATS LADEN
+        # 📊 STATS LADEN
         # ==========================================
 
         stats = lade_180_stats()
 
-        print(
-            f"🗑️ 180-DELETE STATS VORHER: {stats}",
-            flush=True
-        )
-
-        if not stats:
-
-            await interaction.followup.send(
-                "❌ Die 180-Statistik ist leer.",
-                ephemeral=True
-            )
-
-            return
-
-        # ==========================================
-        # 👤 SPIELERNAME
-        # ==========================================
-
         spieler_name = spieler.display_name
 
         print(
-            f"🗑️ 180-DELETE SUCHE: "
-            f"{spieler_name}",
+            f"🎯 180-STATS VORHER: {stats}",
             flush=True
         )
 
         # ==========================================
-        # 🔎 SPIELER IN STATS SUCHEN
+        # 🔎 SPIELER SUCHEN
         # ==========================================
 
         vorhandener_name = None
 
         for name in list(stats.keys()):
 
-            try:
-
-                if normalize(str(name)) == normalize(
-                    str(spieler_name)
-                ):
-                    vorhandener_name = name
-                    break
-
-            except Exception:
-
-                if str(name).lower() == str(
-                    spieler_name
-                ).lower():
-                    vorhandener_name = name
-                    break
+            if normalize(name) == normalize(
+                spieler_name
+            ):
+                vorhandener_name = name
+                break
 
         # ==========================================
         # ❌ NICHT GEFUNDEN
@@ -2515,44 +2487,22 @@ async def loesche_1x180(
 
         if vorhandener_name is None:
 
+            await interaction.followup.send(
+                f"❌ **{spieler_name}** hat keine "
+                f"gespeicherte 180.",
+                ephemeral=True
+            )
+
             print(
-                f"❌ 180-DELETE SPIELER NICHT GEFUNDEN: "
+                f"❌ Spieler nicht in 180-Stats: "
                 f"{spieler_name}",
                 flush=True
             )
 
-            await interaction.followup.send(
-                f"❌ **{spieler_name}** wurde in der "
-                f"180-Liste nicht gefunden.\n\n"
-                f"📊 Aktuelle Einträge:\n"
-                + "\n".join(
-                    f"• {name}: {wert}×180"
-                    for name, wert in stats.items()
-                ),
-                ephemeral=True
-            )
-
             return
 
-        # ==========================================
-        # 📊 AKTUELLER STAND
-        # ==========================================
-
-        try:
-
-            aktueller_stand = int(
-                stats[vorhandener_name]
-            )
-
-        except Exception:
-
-            aktueller_stand = 0
-
-        print(
-            f"🗑️ 180-DELETE GEFUNDEN: "
-            f"{vorhandener_name} = "
-            f"{aktueller_stand}×180",
-            flush=True
+        aktueller_stand = int(
+            stats[vorhandener_name]
         )
 
         # ==========================================
@@ -2579,18 +2529,9 @@ async def loesche_1x180(
 
             del stats[vorhandener_name]
 
-            neuer_stand = 0
-
         else:
 
             stats[vorhandener_name] = neuer_stand
-
-        print(
-            f"🗑️ 180-DELETE ÄNDERUNG: "
-            f"{vorhandener_name} "
-            f"{aktueller_stand} → {neuer_stand}",
-            flush=True
-        )
 
         # ==========================================
         # 💾 SPEICHERN
@@ -2600,29 +2541,108 @@ async def loesche_1x180(
             stats
         )
 
-        # ==========================================
-        # 🔄 SPEICHERN KONTROLLIEREN
-        # ==========================================
-
-        kontroll_stats = lade_180_stats()
-
         print(
-            f"🗑️ 180-DELETE NACH SPEICHERN: "
-            f"{kontroll_stats}",
+            f"🗑️ 180 GELÖSCHT: "
+            f"{spieler_name} "
+            f"{aktueller_stand} -> {neuer_stand}",
             flush=True
         )
 
         # ==========================================
-        # 📊 DISCORD-LISTE AKTUALISIEREN
+        # 📊 STATISTIK-CHANNEL HOLEN
         # ==========================================
 
-        update_ok = await aktualisiere_180_statistik()
-
-        print(
-            f"🗑️ 180-DELETE LISTE UPDATE: "
-            f"{update_ok}",
-            flush=True
+        channel = client.get_channel(
+            STATISTIKEN_CHANNEL_ID
         )
+
+        if channel is None:
+
+            print(
+                "❌ #statistiken über ID nicht gefunden.",
+                flush=True
+            )
+
+            await interaction.followup.send(
+                f"⚠️ **1×180 wurde gelöscht.**\n"
+                f"🎯 Neuer Stand: **{neuer_stand}×180**\n\n"
+                f"❌ Aber #statistiken konnte nicht "
+                f"gefunden werden.",
+                ephemeral=True
+            )
+
+            return
+
+        # ==========================================
+        # 📋 NEUE LISTE ERSTELLEN
+        # ==========================================
+
+        text = erstelle_180_liste(
+            stats
+        )
+
+        # ==========================================
+        # 🔎 ALTE MANFRED-LISTE SUCHEN
+        # ==========================================
+
+        alte_id = lade_180_message_id()
+
+        aktualisiert = False
+
+        if alte_id:
+
+            try:
+
+                alte_message = await channel.fetch_message(
+                    int(alte_id)
+                )
+
+                await alte_message.edit(
+                    content=text
+                )
+
+                aktualisiert = True
+
+                print(
+                    "✅ Bestehende 180-Liste "
+                    "direkt aktualisiert.",
+                    flush=True
+                )
+
+            except discord.NotFound:
+
+                print(
+                    "⚠️ Alte 180-Nachricht nicht gefunden.",
+                    flush=True
+                )
+
+            except discord.Forbidden:
+
+                print(
+                    "❌ Keine Berechtigung zum "
+                    "Bearbeiten der 180-Nachricht.",
+                    flush=True
+                )
+
+        # ==========================================
+        # 🆕 FALLS ALTE LISTE NICHT EXISTIERT
+        # ==========================================
+
+        if not aktualisiert:
+
+            neue_message = await channel.send(
+                text
+            )
+
+            speichere_180_message_id(
+                neue_message.id
+            )
+
+            print(
+                f"🆕 Neue 180-Liste erstellt: "
+                f"{neue_message.id}",
+                flush=True
+            )
 
         # ==========================================
         # ✅ ERFOLG
@@ -2632,37 +2652,30 @@ async def loesche_1x180(
             f"🗑️ **1×180 gelöscht!**\n\n"
             f"🎯 Spieler: **{spieler_name}**\n"
             f"📊 Alter Stand: **{aktueller_stand}×180**\n"
-            f"📊 Neuer Stand: **{neuer_stand}×180**\n\n"
-            f"{'✅ Liste aktualisiert.' if update_ok else '⚠️ Liste konnte nicht aktualisiert werden.'}",
+            f"📊 Neuer Stand: **{neuer_stand}×180**\n"
+            f"✅ #statistiken wurde aktualisiert.",
             ephemeral=True
         )
 
         print(
-            f"✅ 180-DELETE ERFOLGREICH: "
-            f"{spieler_name} "
-            f"{aktueller_stand} → {neuer_stand}",
+            f"✅ /1x180-loeschen KOMPLETT FERTIG: "
+            f"{spieler_name} -> {neuer_stand}",
             flush=True
         )
 
     except Exception as e:
 
         print(
-            f"❌ 180-DELETE FEHLER: "
+            f"❌ FEHLER /1x180-loeschen: "
             f"{repr(e)}",
             flush=True
         )
 
-        try:
-
-            await interaction.followup.send(
-                f"❌ **Fehler beim Löschen:**\n"
-                f"```{e}```",
-                ephemeral=True
-            )
-
-        except Exception:
-
-            pass
+        await interaction.followup.send(
+            f"❌ **Fehler beim Löschen:**\n"
+            f"```{e}```",
+            ephemeral=True
+        )
 
 # =========================
 # MESSAGE HANDLER
@@ -2674,6 +2687,19 @@ async def on_message(message):
     # 🤖 BOT-NACHRICHTEN IGNORIEREN
     # ==========================================
     if message.author.bot:
+        return
+
+    # ==========================================
+    # 🚫 /1x180-loeschen NICHT ALS 180 ZÄHLEN
+    # ==========================================
+    if message.content.lower().startswith(
+        "/1x180-loeschen"
+    ):
+        print(
+            "🚫 /1x180-loeschen erkannt - "
+            "nicht als 180 verarbeiten.",
+            flush=True
+        )
         return
 
     print(
@@ -2697,15 +2723,7 @@ async def on_message(message):
     )
 
     global lanzi_insult_index
-    if message.author.bot:
-        return
-    
 
-
-    print(
-        f"🧪 NACH BOT CHECK: {message.channel.name}",
-        flush=True
-    )
     print(
         f"🧪 NACH BOT CHECK: {message.channel.name}",
         flush=True
