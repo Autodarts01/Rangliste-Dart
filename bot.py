@@ -2016,48 +2016,80 @@ def ermittle_180(message):
 
     try:
 
-        # 🤖 BOT-NACHRICHTEN ignorieren
+        # 🤖 Bot-Nachrichten ignorieren
         if message.author.bot:
             return None
 
-        text = message.content.lower().strip()
+        text = message.content.strip().lower()
 
-        # 🚫 SLASH-COMMANDS niemals als 180 zählen
-        if text.startswith("/"):
+        # ==========================================
+        # 🚫 LÖSCHBEFEHL IST KEINE 180
+        # ==========================================
+
+        if text.startswith("/1x180-loeschen"):
+            print(
+                "🚫 /1x180-loeschen erkannt - "
+                "keine 180 zählen.",
+                flush=True
+            )
             return None
 
-        # 👤 Keine Erwähnung = keine 180
+        # ==========================================
+        # 👤 Ohne Spieler keine 180
+        # ==========================================
+
         if not message.mentions:
             return None
 
-        # 🎯 Nur echtes "180" erkennen
-        if not re.search(r"\b180\b", text):
+        # ==========================================
+        # 🎯 Es muss wirklich 180 vorkommen
+        # ==========================================
+
+        if "180" not in text:
             return None
 
+        # Erster erwähnter Spieler
         spieler = message.mentions[0].display_name
 
-        # 🎯 @Spieler 3x180
+        # ==========================================
+        # @Spieler 3x180 / 3 x 180
+        # ==========================================
+
         match = re.search(
             r"(\d+)\s*x\s*180\b",
             text
         )
 
         if match:
-            anzahl = int(match.group(1))
+
+            anzahl = int(
+                match.group(1)
+            )
 
         else:
-            # 🎯 @Spieler 180
+
+            # ======================================
+            # @Spieler 180
+            # ======================================
+
             anzahl = 1
 
+        # Keine negativen/ungültigen Werte
         if anzahl <= 0:
             return None
+
+        print(
+            f"🎯 180 ERKANNT: "
+            f"{spieler} +{anzahl}",
+            flush=True
+        )
 
         return spieler, anzahl
 
     except Exception as e:
 
         print(
-            f"❌ Fehler beim Erkennen der 180: "
+            f"❌ Fehler bei ermittle_180: "
             f"{repr(e)}",
             flush=True
         )
@@ -2689,19 +2721,6 @@ async def on_message(message):
     if message.author.bot:
         return
 
-    # ==========================================
-    # 🚫 /1x180-loeschen NICHT ALS 180 ZÄHLEN
-    # ==========================================
-    if message.content.lower().startswith(
-        "/1x180-loeschen"
-    ):
-        print(
-            "🚫 /1x180-loeschen erkannt - "
-            "nicht als 180 verarbeiten.",
-            flush=True
-        )
-        return
-
     print(
         f"🔥 EVENT START ID={message.id} | "
         f"CONTENT={message.content}",
@@ -2709,7 +2728,7 @@ async def on_message(message):
     )
 
     print(
-        f"🔥 ON_MESSAGE VERSION NEU",
+        "🔥 ON_MESSAGE VERSION NEU",
         flush=True
     )
 
