@@ -2153,7 +2153,9 @@ async def verarbeite_180(message):
         return False
 # ==========================================
 # 🎯 /1x180-loeschen
+# Löscht genau 1×180 bei einem Spieler
 # ==========================================
+
 @tree.command(
     name="1x180-loeschen",
     description="Löscht genau eine 180 bei einem Spieler"
@@ -2165,15 +2167,19 @@ async def loesche_1x180(
     interaction: discord.Interaction,
     spieler: discord.Member
 ):
+
     print(
         f"🗑️ /1x180-loeschen START | "
-        f"Spieler={spieler} | "
-        f"ID={spieler.id}",
+        f"User={interaction.user} | "
+        f"Ziel={spieler} | "
+        f"Ziel-ID={spieler.id}",
         flush=True
     )
+
     # ==========================================
-    # ADMIN CHECK
+    # 🔐 ADMIN CHECK
     # ==========================================
+
     if not any(
         role.id in ADMIN_ROLE_IDS
         for role in interaction.user.roles
@@ -2183,113 +2189,178 @@ async def loesche_1x180(
             ephemeral=True
         )
         return
+
     await interaction.response.defer(
         ephemeral=True
     )
+
     try:
+
+        # ==========================================
+        # 📂 STATS LADEN
+        # ==========================================
+
         stats = lade_180_stats()
-        spieler_name = spieler.display_name
+
         print(
-            f"🗑️ Suche 180 für: {spieler_name}",
+            f"🗑️ STATS VORHER: {stats}",
             flush=True
         )
+
+        spieler_name = spieler.display_name
+
+        print(
+            f"🗑️ GESUCHTER SPIELER: "
+            f"{spieler_name!r}",
+            flush=True
+        )
+
         # ==========================================
-        # SPIELER ÜBER NORMALIZE SUCHEN
+        # 🔎 SPIELER SUCHEN
         # ==========================================
+
         vorhandener_name = None
-        for name in stats:
+
+        for name, wert in stats.items():
+
             print(
-                f"🔎 Prüfe: {name} "
-                f"gegen {spieler_name}",
+                f"🔎 VERGLEICH: "
+                f"{name!r} ({wert}) "
+                f"<-> "
+                f"{spieler_name!r}",
                 flush=True
             )
+
             if normalize(name) == normalize(
                 spieler_name
             ):
                 vorhandener_name = name
                 break
+
         # ==========================================
-        # NICHT GEFUNDEN
+        # ❌ NICHT GEFUNDEN
         # ==========================================
+
         if vorhandener_name is None:
+
             print(
-                f"❌ Kein Eintrag für {spieler_name}",
+                f"❌ SPIELER NICHT GEFUNDEN: "
+                f"{spieler_name!r}",
                 flush=True
             )
+
             await interaction.followup.send(
                 f"❌ **{spieler_name}** "
                 f"hat keine gespeicherte 180.",
                 ephemeral=True
             )
+
             return
-        aktueller_stand = int(
+
+        # ==========================================
+        # 🔢 AKTUELLEN WERT HOLEN
+        # ==========================================
+
+        alter_stand = int(
             stats[vorhandener_name]
         )
+
         print(
-            f"📊 Aktueller Stand: "
+            f"📊 AKTUELLER STAND: "
             f"{vorhandener_name} = "
-            f"{aktueller_stand}",
+            f"{alter_stand}",
             flush=True
         )
+
         # ==========================================
-        # SCHON 0
+        # ❌ BEREITS 0
         # ==========================================
-        if aktueller_stand <= 0:
+
+        if alter_stand <= 0:
+
             await interaction.followup.send(
                 f"❌ **{spieler_name}** "
                 f"steht bereits bei **0×180**.",
                 ephemeral=True
             )
+
             return
+
         # ==========================================
-        # GENAU 1 ABZIEHEN
+        # ➖ 1 ABZIEHEN
         # ==========================================
-        neuer_stand = aktueller_stand - 1
-        stats[vorhandener_name] = neuer_stand
-        # Bei 0 aus der Liste entfernen
+
+        neuer_stand = alter_stand - 1
+
         if neuer_stand <= 0:
+
             del stats[vorhandener_name]
+
             neuer_stand = 0
-        # ==========================================
-        # SPEICHERN
-        # ==========================================
-        speichere_180_stats(stats)
+
+        else:
+
+            stats[vorhandener_name] = neuer_stand
+
         print(
-            f"🗑️ 180 GELÖSCHT: "
-            f"{spieler_name} "
-            f"{aktueller_stand} -> "
+            f"🗑️ ÄNDERUNG: "
+            f"{vorhandener_name} "
+            f"{alter_stand} -> "
             f"{neuer_stand}",
             flush=True
         )
+
         # ==========================================
-        # TABELLE AKTUALISIEREN
+        # 💾 SPEICHERN
         # ==========================================
-        aktualisiert = await aktualisiere_180_statistik()
+
+        speichere_180_stats(stats)
+
         print(
-            f"📊 Tabelle aktualisiert: "
+            f"💾 STATS NACHHER: {stats}",
+            flush=True
+        )
+
+        # ==========================================
+        # 📊 TABELLE AKTUALISIEREN
+        # ==========================================
+
+        aktualisiert = await aktualisiere_180_statistik()
+
+        print(
+            f"📊 180-TABELLE AKTUALISIERT: "
             f"{aktualisiert}",
             flush=True
         )
+
         # ==========================================
-        # ANTWORT
+        # ✅ ANTWORT
         # ==========================================
+
         await interaction.followup.send(
             f"🗑️ **1×180 gelöscht!**\n\n"
             f"🎯 Spieler: **{spieler_name}**\n"
+            f"📊 Alter Stand: **{alter_stand}×180**\n"
             f"📊 Neuer Stand: **{neuer_stand}×180**",
             ephemeral=True
         )
+
     except Exception as e:
+
         print(
             f"❌ FEHLER /1x180-loeschen: "
             f"{repr(e)}",
             flush=True
         )
+
         try:
+
             await interaction.followup.send(
-                f"❌ **Fehler:**\n```{e}```",
+                f"❌ **Fehler beim Löschen:**\n"
+                f"```{e}```",
                 ephemeral=True
             )
+
         except Exception:
             pass
 # ==========================================
