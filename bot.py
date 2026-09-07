@@ -1816,27 +1816,24 @@ async def on_ready():
     GUILD_ID = 1463104622779695159
     guild = discord.Object(id=GUILD_ID)
 
-    print(
-        "⏳ Starte Slash-Command-Synchronisierung...",
-        flush=True
-    )
+    print("⏳ Starte Slash-Command-Synchronisierung...", flush=True)
 
     try:
         synced = await tree.sync(guild=guild)
 
         print(
-            f"✅ Slash Commands für Server {GUILD_ID} synchronisiert!",
+            f"✅ {len(synced)} Guild-Slash-Commands synchronisiert!",
             flush=True
         )
 
         print(
-            "📋 Registrierte Commands:",
+            "📋 LOKALER TREE:",
             [cmd.name for cmd in tree.get_commands()],
             flush=True
         )
 
         print(
-            "📋 Discord-Guild-Commands:",
+            "📋 DISCORD GUILD:",
             [cmd.name for cmd in synced],
             flush=True
         )
@@ -2169,10 +2166,17 @@ async def loesche_1x180(
 ):
 
     print(
-        f"🗑️ /1x180-loeschen START | "
-        f"User={interaction.user} | "
-        f"Ziel={spieler} | "
-        f"Ziel-ID={spieler.id}",
+        "🚨🚨🚨 LOESCHE_1X180 WURDE AUSGEFÜHRT 🚨🚨🚨",
+        flush=True
+    )
+
+    print(
+        f"👤 USER={interaction.user}",
+        flush=True
+    )
+
+    print(
+        f"🎯 SPIELER={spieler}",
         flush=True
     )
 
