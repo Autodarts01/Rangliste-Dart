@@ -1818,7 +1818,7 @@ async def on_ready():
 
     print("⏳ Starte Slash-Command-Synchronisierung...", flush=True)
 
-        try:
+    try:
         print("🧪 SYNC 1 - VOR tree.sync()", flush=True)
 
         synced = await tree.sync(guild=guild)
