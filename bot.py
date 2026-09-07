@@ -1813,17 +1813,32 @@ async def on_ready():
     print("🔥 ON_READY START", flush=True)
     print(f"✅ Online als {client.user}", flush=True)
 
-    GUILD_ID = 1463104622779695159
+        GUILD_ID = 1463104622779695159
     guild = discord.Object(id=GUILD_ID)
 
-    print("⏳ Starte Slash-Command-Synchronisierung...", flush=True)
+    print(
+        "⏳ Starte Slash-Command-Synchronisierung...",
+        flush=True
+    )
 
     try:
-        print("🧪 SYNC 1 - VOR tree.sync()", flush=True)
+
+        # ==========================================
+        # 🌐 GLOBALE COMMANDS IN DIE GUILD KOPIEREN
+        # ==========================================
+
+        tree.copy_global_to(guild=guild)
+
+        print(
+            "🧪 GLOBAL COMMANDS IN GUILD KOPIERT",
+            flush=True
+        )
+
+        # ==========================================
+        # 🔄 GUILD COMMANDS SYNCHRONISIEREN
+        # ==========================================
 
         synced = await tree.sync(guild=guild)
-
-        print("🧪 SYNC 2 - NACH tree.sync()", flush=True)
 
         print(
             f"✅ {len(synced)} Guild-Slash-Commands synchronisiert!",
@@ -1843,6 +1858,7 @@ async def on_ready():
         )
 
     except Exception as e:
+
         print(
             f"❌ Slash-Sync Fehler: {repr(e)}",
             flush=True
