@@ -1813,7 +1813,7 @@ async def on_ready():
     print("🔥 ON_READY START", flush=True)
     print(f"✅ Online als {client.user}", flush=True)
 
-        GUILD_ID = 1463104622779695159
+    GUILD_ID = 1463104622779695159
     guild = discord.Object(id=GUILD_ID)
 
     print(
