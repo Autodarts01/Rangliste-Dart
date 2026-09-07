@@ -2369,28 +2369,6 @@ async def reset_180(
         )
 
 
-# ==========================================
-# 🎯 MANFRED 180 TRACKER
-# ==========================================
-if message.channel.name == MANFRED_180_ERGEBNIS_CHANNEL:
-    print(
-        f"🎯 180 CHANNEL ERKANNT | "
-        f"CONTENT={message.content}",
-        flush=True
-    )
-    # Slash-Commands niemals als 180 behandeln
-    if message.content.startswith("/"):
-        print(
-            "🚫 Slash-Command -> 180 Tracker übersprungen",
-            flush=True
-        )
-    else:
-        await verarbeite_180(message)
-        print(
-            "🎯 180 VERARBEITUNG FERTIG",
-            flush=True
-        )
-
 # =========================
 # MESSAGE HANDLER
 # =========================
@@ -2503,36 +2481,35 @@ async def on_message(message):
         flush=True
     )
     print("🧪 TEST 14 VOR COMMANDS", flush=True)
-    print("🧪 TEST 14 VOR COMMANDS", flush=True)
 
-# ==========================================
-# 🎯 MANFRED 180 TRACKER
-# ==========================================
+    # ==========================================
+    # 🎯 MANFRED 180 TRACKER
+    # ==========================================
 
-if message.channel.name == MANFRED_180_ERGEBNIS_CHANNEL:
-
-    print(
-        f"🎯 180 CHANNEL ERKANNT | "
-        f"CONTENT={message.content}",
-        flush=True
-    )
-
-    # Slash-Commands niemals als 180 behandeln
-    if message.content.startswith("/"):
+    if message.channel.name == MANFRED_180_ERGEBNIS_CHANNEL:
 
         print(
-            "🚫 Slash-Command -> 180 Tracker übersprungen",
+            f"🎯 180 CHANNEL ERKANNT | "
+            f"CONTENT={message.content}",
             flush=True
         )
 
-    else:
+        # Slash-Commands niemals als 180 behandeln
+        if message.content.startswith("/"):
 
-        await verarbeite_180(message)
+            print(
+                "🚫 Slash-Command -> 180 Tracker übersprungen",
+                flush=True
+            )
 
-        print(
-            "🎯 180 VERARBEITUNG FERTIG",
-            flush=True
-        )
+        else:
+
+            await verarbeite_180(message)
+
+            print(
+                "🎯 180 VERARBEITUNG FERTIG",
+                flush=True
+            )
 
     # =========================
     # Stats-Commands auch im Stats-Channel erlauben
