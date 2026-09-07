@@ -2101,36 +2101,46 @@ async def aktualisiere_180_statistik():
             client.get_all_channels(),
             name=MANFRED_180_STATISTIK_CHANNEL
         )
+
         if channel is None:
             print(
                 "❌ #statistiken nicht gefunden.",
                 flush=True
             )
             return False
+
         stats = lade_180_stats()
         text = erstelle_180_liste(stats)
+
         alte_id = lade_180_message_id()
+
         # ==========================================
-        # 📝 VORHANDENE NACHRICHT BEARBEITEN
+        # 📝 GESPEICHERTE NACHRICHT BEARBEITEN
         # ==========================================
         if alte_id:
             try:
                 alte_message = await channel.fetch_message(
                     int(alte_id)
                 )
+
                 await alte_message.edit(
                     content=text
                 )
+
                 print(
-                    "✅ 180-Tabelle aktualisiert.",
+                    f"✅ 180-Tabelle aktualisiert: {alte_message.id}",
                     flush=True
                 )
+
                 return True
+
             except discord.NotFound:
                 print(
-                    "⚠️ Alte 180-Tabelle nicht gefunden.",
+                    "⚠️ Gespeicherte 180-Tabelle nicht gefunden. "
+                    "Suche nach vorhandener Tabelle...",
                     flush=True
                 )
+
             except discord.Forbidden:
                 print(
                     "❌ Keine Berechtigung zum Bearbeiten "
@@ -2138,21 +2148,61 @@ async def aktualisiere_180_statistik():
                     flush=True
                 )
                 return False
+
         # ==========================================
-        # 🆕 NEUE NACHRICHT ERSTELLEN
+        # 🔎 VORHANDENE 180-TABELLE SUCHEN
+        # ==========================================
+        try:
+            async for message in channel.history(limit=100):
+                if (
+                    message.author == client.user
+                    and message.content.startswith(
+                        "🎯 **ONE HUNDRED AND EIGHTY**"
+                    )
+                ):
+                    await message.edit(
+                        content=text
+                    )
+
+                    speichere_180_message_id(
+                        message.id
+                    )
+
+                    print(
+                        f"✅ Vorhandene 180-Tabelle übernommen: "
+                        f"{message.id}",
+                        flush=True
+                    )
+
+                    return True
+
+        except discord.Forbidden:
+            print(
+                "❌ Keine Berechtigung, "
+                "den #statistiken-Verlauf zu lesen.",
+                flush=True
+            )
+            return False
+
+        # ==========================================
+        # 🆕 NOCH KEINE 180-TABELLE VORHANDEN
         # ==========================================
         neue_message = await channel.send(
             text
         )
+
         speichere_180_message_id(
             neue_message.id
         )
+
         print(
-            f"✅ Neue 180-Tabelle erstellt: "
+            f"✅ Einzige 180-Tabelle erstellt: "
             f"{neue_message.id}",
             flush=True
         )
+
         return True
+
     except Exception as e:
         print(
             f"❌ Fehler aktualisiere_180_statistik: "
