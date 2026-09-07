@@ -2243,6 +2243,10 @@ async def loesche_1x180(
         # 🔎 SPIELER SUCHEN
         # ==========================================
 
+        print(f"🗂️ GESPEICHERTE STATS: {stats!r}", flush=True)
+        print(f"🎯 ZIEL SPIELER: {spieler_name!r}", flush=True)
+        print(f"🎯 NORMALISIERT: {normalize(spieler_name)!r}", flush=True)
+
         vorhandener_name = None
 
         for name, wert in stats.items():
@@ -2250,14 +2254,14 @@ async def loesche_1x180(
             print(
                 f"🔎 VERGLEICH: "
                 f"{name!r} ({wert}) "
+                f"-> normalisiert: {normalize(name)!r} "
                 f"<-> "
-                f"{spieler_name!r}",
+                f"{spieler_name!r} "
+                f"-> normalisiert: {normalize(spieler_name)!r}",
                 flush=True
             )
 
-            if normalize(name) == normalize(
-                spieler_name
-            ):
+            if normalize(name) == normalize(spieler_name):
                 vorhandener_name = name
                 break
 
