@@ -2521,15 +2521,7 @@ async def on_message(message):
     is_spieler_info = message.channel.id == SPIELER_INFO_CHANNEL_ID
     is_abwesenheit = message.channel.id == ABWESENHEIT_CHANNEL_ID
     is_geburtstage = message.channel.id == GEBURTSTAGE_CHANNEL_ID
-    # =========================
-    # Stats-Commands auch im Stats-Channel erlauben
-    # =========================
-    is_stats_channel = message.channel.id == STATS_CHANNEL_ID
-    is_main_channel = message.channel.name == CHANNEL_NAME
-    is_spielabsprachen = message.channel.id == LOG_CHANNEL_ID
-    is_spieler_info = message.channel.id == SPIELER_INFO_CHANNEL_ID
-    is_abwesenheit = message.channel.id == ABWESENHEIT_CHANNEL_ID
-    is_geburtstage = message.channel.id == GEBURTSTAGE_CHANNEL_ID
+   
     
         
     print(
