@@ -1916,6 +1916,16 @@ MANFRED_180_MESSAGE_FILE = "manfred_180_message.txt"
 # ==========================================
 def lade_180_stats():
     try:
+        print(
+            f"📂 180 DATEI: {os.path.abspath(MANFRED_180_STATS_FILE)}",
+            flush=True
+        )
+        print(
+            f"📂 180 DATEI EXISTIERT: "
+            f"{os.path.exists(MANFRED_180_STATS_FILE)}",
+            flush=True
+        )
+
         if os.path.exists(MANFRED_180_STATS_FILE):
             with open(
                 MANFRED_180_STATS_FILE,
@@ -1923,19 +1933,38 @@ def lade_180_stats():
                 encoding="utf-8"
             ) as f:
                 daten = json.load(f)
+
+                print(
+                    f"📂 180 GELADENE STATS: {daten!r}",
+                    flush=True
+                )
+
                 if isinstance(daten, dict):
                     return daten
+
     except Exception as e:
         print(
             f"❌ 180 Stats laden: {repr(e)}",
             flush=True
         )
+
     return {}
+
+
 # ==========================================
 # 💾 180 STATS SPEICHERN
 # ==========================================
 def speichere_180_stats(stats):
     try:
+        print(
+            f"💾 180 DATEI: {os.path.abspath(MANFRED_180_STATS_FILE)}",
+            flush=True
+        )
+        print(
+            f"💾 180 INHALT ZUM SPEICHERN: {stats!r}",
+            flush=True
+        )
+
         with open(
             MANFRED_180_STATS_FILE,
             "w",
@@ -1947,10 +1976,12 @@ def speichere_180_stats(stats):
                 ensure_ascii=False,
                 indent=4
             )
+
         print(
-            f"💾 180 Stats gespeichert: {stats}",
+            f"💾 180 Stats gespeichert: {stats!r}",
             flush=True
         )
+
     except Exception as e:
         print(
             f"❌ 180 Stats speichern: {repr(e)}",
