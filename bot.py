@@ -1279,64 +1279,59 @@ async def on_message(message):
             return
 
         # =========================
-        # VOLLSTÄNDIGE COMMAND-LISTE (in #statistiken)
+        # VOLLSTÄNDIGE COMMAND-LISTE (in #statistiken) - Aufgeteilt in 2 Teile
         # =========================
         if is_stats_channel:
-            hilfe_admin = """🎯 **MANFRED - VOLLSTÄNDIGE COMMANDS LISTE**
+            hilfe_admin_1 = """🎯 **MANFRED - VOLLSTÄNDIGE COMMANDS LISTE (Teil 1)**
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 👥 **SPIELER COMMANDS** (`#rangliste-spieler-info`)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-• `!ich` / `/ich` → Zeigt deine persönlichen Stats (Spiele, Siege, Win-Rate)
-• `!ziel` / `/ziel` → Zeigt deinen nächsten Meilenstein & deinen aktuellen Rang
-• `!nächster` / `/naechster` → Zeigt wer heute noch freie Spiele übrig hat
-• `!quote` / `/quote` → Gibt einen zufälligen Motivationsspruch aus
-• `!h2h @Spieler` → Direktvergleich mit einem Spieler (inkl. Archiv-Saisons)
+• `!ich` / `/ich` → Zeigt deine persönlichen Stats
+• `!ziel` / `/ziel` → Zeigt deinen nächsten Meilenstein
+• `!nächster` / `/naechster` → Wer hat heute noch Spiele frei?
+• `!quote` / `/quote` → Zufälliger Motivationsspruch
+• `!h2h @Spieler` → Direktvergleich mit einem Spieler
 • `!hilfe` / `/hilfe` → Zeigt diese Übersicht an
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📊 **STATISTIK COMMANDS** (`#statistiken`)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-• `!stats Spielername` → Zeigt die Statistiken eines bestimmten Spielers
-• `!top` / `!rangliste` → Zeigt die Top 10 Spieler der Rangliste
-• `!tabelle` → Generiert die aktuelle Rangliste als PNG-Bild
-• `!streak Spielername` → Zeigt die aktuelle Siegesserie eines Spielers
-• `!h2h Spieler1 Spieler2` → Direktvergleich zwischen zwei beliebigen Spielern
-• `!rivalitaeten` / `!rivalitäten` → Zeigt deine (oder die eines Spielers) Top 5 Gegner
-• `!gesamt` → Zeigt die Gesamtzahl aller bisher gespielten Matches
-• `!los` → Gibt einen humorvollen Ligaspruch aus
+• `!stats Spielername` → Stats eines bestimmten Spielers
+• `!top` / `!rangliste` → Top 10 Spieler der Rangliste
+• `!tabelle` → Aktuelle Rangliste als PNG-Bild
+• `!streak Spielername` → Aktuelle Siegesserie
+• `!h2h Spieler1 Spieler2` → Direktvergleich zweier Spieler
+• `!rivalitaeten` → Top 5 häufigste Gegner
+• `!gesamt` → Gesamtzahl aller gespielten Matches
+• `!los` → Humorvoller Ligaspruch"""
 
+            hilfe_admin_2 = """━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔧 **ADMIN & SYSTEM COMMANDS**
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔧 **ADMIN COMMANDS** (`#bullseye-rangliste-ergebnisse`)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-• `!add @Spieler +1` / `-1` → Tages-Matchlimit eines Spielers manuell anpassen
-• `!undo` → Löscht den allerletzten Spiel-Eintrag aus der Datenbank
-• `!rename AlterName NeuerName` → Benennt einen Spieler in allen Einträgen um
-• `!delete @Spieler confirm` → Löscht einen Spieler komplett aus allen Daten
-• `/test_monatsreset` → Führt den Monatsreset testweise aus (ohne Daten zu löschen)
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔄 **SAISON & MONATSRESET**
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-• `!saisonreset confirm` → Manuelles Archivieren und Zurücksetzen der Saison
+• `!add @Spieler +1` → Tageslimit manuell anpassen
+• `!undo` → Letzten Spiele-Eintrag löschen
+• `!rename Alt Neu` → Spieler in Historie umbenennen
+• `!delete @Spieler confirm` → Spieler löschen
+• `/test_monatsreset` → Monatsreset testen
+• `!saisonreset confirm` → Saison archivieren
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📅 **ABWESENHEIT & GEBURTSTAGE**
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-• `!urlaub 20.06 - 30.06` → Eintragen deines Urlaubs (`#abwesenheit`)
-• `!urlaub loeschen` → Löscht deinen eingetragenen Urlaub
-• `!urlaube` → Zeigt die Urlaubsübersicht aller Spieler
-• `!geburtstag 15.03` → Trägt deinen Geburtstag ein (`#geburtstage`)
+• `!urlaub 20.06 - 30.06` → Urlaub eintragen
+• `!urlaub loeschen` → Urlaub löschen
+• `!urlaube` → Urlaubsübersicht anzeigen
+• `!geburtstag 15.03` → Geburtstag eintragen
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🤖 **AUTOMATISCHE CHECKS**
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-• **07:00 / 14:00 / 18:00 / 22:00 Uhr** → Automatische Tabellen-Updates
-• **00:05 Uhr** → Tagesauswertung & Reset der täglichen Matches
-• **09:00 Uhr** → Automatische Geburtstags-Glückwünsche
-• **1. des Monats** → Automatische Auswertung des Monatssiegers & Archivierung
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"""
-            await message.channel.send(hilfe_admin)
+• 07:00/14:00/18:00/22:00 Uhr → Tabellen-Updates
+• 00:05 Uhr → Tagesauswertung & Reset
+• 09:00 Uhr → Geburtstags-Glückwünsche
+• 1. des Monats → Monatssieger & Archivierung"""
+
+            await message.channel.send(hilfe_admin_1)
+            await message.channel.send(hilfe_admin_2)
             return
 
         # =========================
