@@ -149,7 +149,7 @@ sheet = gs_client.open_by_key(
 # =========================
 match_count = defaultdict(int)
 last_reset = date.today()
-today_matches = []  # für Tagesauswertung: liste von dicts
+today_matches = []  # für Tagesauswertung
 
 # =========================
 # REGEX
@@ -324,7 +324,7 @@ def generate_tabelle_image(tabelle, title):
     SEP_COLOR = (100, 100, 100)
     TITLE_COLOR = (255, 255, 255)
 
-    import urllib.request, tempfile
+    import urllib.request
     font_file = "/tmp/mono.ttf"
     if not os.path.exists(font_file):
         try:
@@ -1520,23 +1520,30 @@ Schreibt einfach so:
         return
 
     if len(message.mentions) < 2:
-        await message.channel.send("⚠️ **Bitte Spieler mit @ markieren!**\nBeispiel: `@Spieler1 vs @Spieler2 3:2`")
+        await message.channel.send(
+            "Ohne @ bin ich blind. Ich bin ein Bot, kein Hellseher 🔮\n"
+            "⚠️ **Bitte Spieler mit @ markieren!**\n"
+            "Beispiel: `@Sam The Gambler vs @squishy_180 3:2`"
+        )
         return
 
     result = resolve_names(message, content)
     if not result:
-        await message.channel.send("❌ Format: Spieler A vs Spieler B 3:0")
+        await message.channel.send("Selbst die KI schüttelt den Kopf 🤖\n❌ Format: Spieler A vs Spieler B 3:0")
         return
 
     p1, p2, s1, s2 = result
     s1, s2 = int(s1), int(s2)
 
     if normalize(p1) == normalize(p2):
-        await message.channel.send("🤦 Niemand kann gegen sich selbst spielen.")
+        await message.channel.send("🤦 Niemand kann gegen sich selbst spielen... oder doch? ❌")
         return
 
-    if s1 == 0 and s2 == 0 or s1 > 20 or s2 > 20:
-        await message.channel.send("❌ Ungültiger Score.")
+    if s1 == 0 and s2 == 0:
+        await message.channel.send("0:0? Hat überhaupt jemand gespielt? 😂 ❌")
+        return
+    if s1 > 20 or s2 > 20:
+        await message.channel.send("❌ Das ist Dart, kein Fußball. Unrealistischer Score!")
         return
 
     if s1 > s2:
@@ -1574,6 +1581,10 @@ Schreibt einfach so:
         rest_winner = remaining(winner)
         rest_loser = remaining(loser)
         await message.channel.send(f"🏆 Sieger: {winner} ({w_score}:{l_score})\n🎮 {winner} noch {rest_winner} Spiele\n🎮 {loser} noch {rest_loser} Spiele")
+        
+        for player, rest in [(winner, rest_winner), (loser, rest_loser)]:
+            if rest == 1:
+                await message.channel.send(f"⚠️ {player} hat nur noch 1 Spiel übrig!")
 
     try:
         spielabsprachen = await client.fetch_channel(LOG_CHANNEL_ID)
