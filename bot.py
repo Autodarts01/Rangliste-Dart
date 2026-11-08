@@ -1271,58 +1271,103 @@ async def on_message(message):
             await message.channel.send(f"❌ Fehler beim Saisonreset.")
         return
         
+    # =========================
+    # !hilfe (Alle Commands)
+    # =========================
     if content.lower().startswith("!hilfe"):
         if not is_stats_channel and not is_spieler_info:
             return
 
+        # =========================
+        # VOLLSTÄNDIGE COMMAND-LISTE (in #statistiken)
+        # =========================
         if is_stats_channel:
-            hilfe_admin = """🎯 MANFRED - ALLE KOMMANDOS
+            hilfe_admin = """🎯 **MANFRED - VOLLSTÄNDIGE COMMANDS LISTE**
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📊 STATISTIK (#statistik-fuer-admin)
+👥 **SPIELER COMMANDS** (`#rangliste-spieler-info`)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-!stats @Spieler → Stats eines Spielers
-!top / !rangliste → Top 10 Rangliste
-!streak @Spieler → Aktuelle Siegesserie
-!h2h Spieler1 Spieler2 → Direktvergleich
-!tabelle → Tabelle als Bild
-!rivalitaeten → Deine Top 5 Gegner
-!gesamt → Gesamtanzahl Spiele
-!los → 😈
+• `!ich` / `/ich` → Zeigt deine persönlichen Stats (Spiele, Siege, Win-Rate)
+• `!ziel` / `/ziel` → Zeigt deinen nächsten Meilenstein & deinen aktuellen Rang
+• `!nächster` / `/naechster` → Zeigt wer heute noch freie Spiele übrig hat
+• `!quote` / `/quote` → Gibt einen zufälligen Motivationsspruch aus
+• `!h2h @Spieler` → Direktvergleich mit einem Spieler (inkl. Archiv-Saisons)
+• `!hilfe` / `/hilfe` → Zeigt diese Übersicht an
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔧 ADMIN (#bullseye-rangliste-ergebnisse)
+📊 **STATISTIK COMMANDS** (`#statistiken`)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-!add @Spieler +1/-1 → Tageslimit anpassen
-!undo → Letzten Eintrag löschen
-/test-monatsreset → Monatsreset testen
-!rename / !delete → Spielerverwaltung
+• `!stats Spielername` → Zeigt die Statistiken eines bestimmten Spielers
+• `!top` / `!rangliste` → Zeigt die Top 10 Spieler der Rangliste
+• `!tabelle` → Generiert die aktuelle Rangliste als PNG-Bild
+• `!streak Spielername` → Zeigt die aktuelle Siegesserie eines Spielers
+• `!h2h Spieler1 Spieler2` → Direktvergleich zwischen zwei beliebigen Spielern
+• `!rivalitaeten` / `!rivalitäten` → Zeigt deine (oder die eines Spielers) Top 5 Gegner
+• `!gesamt` → Zeigt die Gesamtzahl aller bisher gespielten Matches
+• `!los` → Gibt einen humorvollen Ligaspruch aus
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔄 SAISON
+🔧 **ADMIN COMMANDS** (`#bullseye-rangliste-ergebnisse`)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-!saisonreset confirm → Saison archivieren & leeren
+• `!add @Spieler +1` / `-1` → Tages-Matchlimit eines Spielers manuell anpassen
+• `!undo` → Löscht den allerletzten Spiel-Eintrag aus der Datenbank
+• `!rename AlterName NeuerName` → Benennt einen Spieler in allen Einträgen um
+• `!delete @Spieler confirm` → Löscht einen Spieler komplett aus allen Daten
+• `/test_monatsreset` → Führt den Monatsreset testweise aus (ohne Daten zu löschen)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔄 **SAISON & MONATSRESET**
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• `!saisonreset confirm` → Manuelles Archivieren und Zurücksetzen der Saison
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📅 **ABWESENHEIT & GEBURTSTAGE**
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• `!urlaub 20.06 - 30.06` → Eintragen deines Urlaubs (`#abwesenheit`)
+• `!urlaub loeschen` → Löscht deinen eingetragenen Urlaub
+• `!urlaube` → Zeigt die Urlaubsübersicht aller Spieler
+• `!geburtstag 15.03` → Trägt deinen Geburtstag ein (`#geburtstage`)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🤖 **AUTOMATISCHE CHECKS**
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• **07:00 / 14:00 / 18:00 / 22:00 Uhr** → Automatische Tabellen-Updates
+• **00:05 Uhr** → Tagesauswertung & Reset der täglichen Matches
+• **09:00 Uhr** → Automatische Geburtstags-Glückwünsche
+• **1. des Monats** → Automatische Auswertung des Monatssiegers & Archivierung
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"""
             await message.channel.send(hilfe_admin)
             return
 
+        # =========================
+        # SPIELER COMMAND-LISTE (in #rangliste-spieler-info)
+        # =========================
         if is_spieler_info:
-            hilfe_text = """🎯 MANFRED – EUER DART-BOT 🎯
+            hilfe_text = """🎯 **MANFRED – SPIELER BEFEHLE** 🎯
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📋 ERGEBNIS EINTRAGEN
+📋 **ERGEBNIS EINTRAGEN** (im Hauptkanal)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Schreibt einfach so:
-@Spieler1 vs @Spieler2 3:1
+Schreibt ein Ergebnis einfach in folgendem Format ein:
+`@Spieler1 vs @Spieler2 3:1`
+
+⚠️ *Wichtig: Beide Spieler MÜSSEN mit `@` verlinkt werden! Max. 10 Spiele pro Tag.*
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🤖 MEINE KOMMANDOS
+🤖 **VERFÜGBARE BEFEHLE**
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-!ich → Eigene Stats
-!ziel → Nächste Meilensteine & Rang
-!nächster → Freie Gegner heute
-!quote → Motivationsspruch 💪
-!h2h @Spieler → Direktvergleich ⚔️"""
+• `!ich` → Zeigt deine persönlichen Statistiken (Siege, Niederlagen, Winrate)
+• `!ziel` → Zeigt deinen Fortschritt bis zum nächsten Spiele/Siege-Meilenstein & Rang
+• `!nächster` → Zeigt an, wer heute noch freie Spiele übrig hat
+• `!quote` → Postet einen zufälligen Motivationsspruch
+• `!h2h @Spieler` → Startet einen Direktvergleich mit einem anderen Spieler
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🏅 **AUTOMATISCHE MEILENSTEINE**
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Manfred gratuliert automatisch im Log-Kanal bei:
+🎮 **Spiele:** 10, 25, 50, 100 Spiele
+🏆 **Siege:** 10 (Bronze), 25 (Silber), 50 (Gold), 100 (Legende)"""
             await message.channel.send(hilfe_text)
             return
 
@@ -1657,21 +1702,39 @@ async def slash_quote(interaction: discord.Interaction):
 
 @tree.command(name="hilfe", description="Zeigt alle verfuegbaren Befehle")
 async def slash_hilfe(interaction: discord.Interaction):
-    hilfe_text = """🎯 MANFRED - EUER DART-BOT 🎯
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📋 ERGEBNIS EINTRAGEN
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Schreibt einfach so:
-@Spieler1 vs @Spieler2 3:1
+    hilfe_text = """🎯 **MANFRED - VOLLSTÄNDIGE COMMANDS LISTE**
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🤖 BEFEHLE
+👥 **SPIELER COMMANDS** (`#rangliste-spieler-info`)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-/ich       → Deine persoenlichen Stats
-/ziel      → Naechster Meilenstein & Rang
-/naechster → Wer hat heute noch Spiele uebrig?
-/quote     → Motivationsspruch 💪
-/hilfe     → Diese Uebersicht"""
+• `!ich` / `/ich` → Zeigt deine persönlichen Stats
+• `!ziel` / `/ziel` → Nächster Meilenstein & Rang
+• `!nächster` / `/naechster` → Wer hat heute noch Spiele frei?
+• `!quote` / `/quote` → Motivationsspruch
+• `!h2h @Spieler` → Direktvergleich
+• `!hilfe` / `/hilfe` → Diese Übersicht
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 **STATISTIK COMMANDS** (`#statistiken`)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• `!stats Spielername` → Stats eines Spielers
+• `!top` / `!rangliste` → Top 10
+• `!tabelle` → Rangliste als PNG-Bild
+• `!streak Spielername` → Aktuelle Siegesserie
+• `!h2h Spieler1 Spieler2` → Direktvergleich
+• `!rivalitaeten` → Deine Top 5 Gegner
+• `!gesamt` → Gesamtzahl der Spiele
+• `!los` → Ligaspruch
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔧 **ADMIN COMMANDS** (`#bullseye-rangliste-ergebnisse`)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• `!add @Spieler +1/-1` → Tageslimit anpassen
+• `!undo` → Letzten Eintrag löschen
+• `!rename AlterName Neu` → Spieler umbenennen
+• `!delete @Spieler confirm` → Spieler löschen
+• `/test_monatsreset` → Monatsreset testen
+• `!saisonreset confirm` → Saison archivieren"""
     await interaction.response.send_message(hilfe_text, ephemeral=True)
 
 # =========================
