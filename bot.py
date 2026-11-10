@@ -24,7 +24,7 @@ TABELLE_CHANNEL_ID = 1492394072369922118
 SPIELER_INFO_CHANNEL_ID = 1514183688445759509
 ABWESENHEIT_CHANNEL_ID = 1465638993415770286
 GEBURTSTAGE_CHANNEL_ID = 1514226619231899708
-CHANNEL_NAME = "bullseye-rangliste-ergebnisse"
+CHANNEL_NAME = "pro19-rangliste-ergebnisse"
 MAX_MATCHES_PER_DAY = 10
 LANZI_NAME = "lanzi_90"
 WARTELISTE_ROLE_ID = 1492563010395312301
@@ -749,7 +749,7 @@ async def monatlicher_reset(force=False):
 
         if ranking:
             try:
-                channel = discord.utils.get(client.get_all_channels(), name="bullseye-rangliste")
+                channel = discord.utils.get(client.get_all_channels(), name="pro19-rangliste")
                 if channel:
                     emojis = ["🥇", "🥈", "🥉"]
                     msg = f"🏆 **MONATSSIEGER – {monat_name.upper()}**\n━━━━━━━━━━━━━━━━━━━━\n\n"
@@ -819,7 +819,7 @@ async def test_monatsreset(interaction: discord.Interaction):
             await interaction.followup.send(
                 "🧪 **Monatsreset erfolgreich getestet!**\n\n"
                 "🏆 Monatssieger wurde ermittelt.\n"
-                "📢 Ergebnis wurde in #bullseye-rangliste gepostet.\n"
+                "📢 Ergebnis wurde in #pro19-rangliste gepostet.\n"
                 "📦 Test-Archiv wurde erstellt.\n"
                 "🛡️ Die aktuelle Rangliste wurde **NICHT** gelöscht.",
                 ephemeral=True
@@ -1477,7 +1477,7 @@ async def on_message(message):
 !los → 😈
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔧 ADMIN (#bullseye-rangliste-ergebnisse)
+🔧 ADMIN (#pro19-rangliste-ergebnisse)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 !add @Spieler +1/-1 → Tageslimit anpassen
 !undo → Letzten Eintrag löschen
